@@ -13,7 +13,6 @@ const CareerPaths = () => {
         { name: "Junior Data Engineer" },      // Node 2
         { name: "Junior AI Specialist" },      // Node 3
         { name: "Junior Network Engineer" },   // Node 4
-        // 细分职业
         { name: "Software Engineer" },         // Node 5
         { name: "Data Scientist" },            // Node 6
         { name: "AI Research Scientist" },     // Node 7
@@ -33,7 +32,6 @@ const CareerPaths = () => {
         { source: 0, target: 2, value: 15000 },
         { source: 0, target: 3, value: 25000 },
         { source: 0, target: 4, value: 25000 },
-        // 从大类到具体职业的流动
         { source: 1, target: 5, value: 8000 },
         { source: 2, target: 6, value: 7000 },
         { source: 3, target: 7, value: 5000 },
@@ -46,7 +44,6 @@ const CareerPaths = () => {
         { source: 4, target: 15, value: 5000 },
         { source: 4, target: 16, value: 3000 },
         { source: 4, target: 17, value: 3000 },
-        // 职业交叉流动
         { source: 1, target: 14, value: 4000 },
         { source: 2, target: 14, value: 3000 },
         { source: 3, target: 14, value: 2000 }

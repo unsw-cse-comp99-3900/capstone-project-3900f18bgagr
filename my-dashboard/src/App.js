@@ -1,17 +1,16 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import DashboardPage from './Dashboard/DashboardPage';
-import CareerPathsPage from './CareerPath/CareerPaths';
+import React from "react";
+import { BrowserRouter as Router } from "react-router-dom";
 
-function App() {
+import PageList from './PageList'
+
+const App = () => {
   return (
-    <div>
-      <Routes>
-        <Route path="/" element={<DashboardPage />} />
-        <Route path="/CareerPaths" element={<CareerPathsPage />} />
-      </Routes>
-    </div>
+    <>
+      <Router>
+        <PageList />
+      </Router>
+    </>
   );
-}
+};
 
 export default App;

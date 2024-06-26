@@ -1,9 +1,10 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import NavigationBar from '../NavigationBar';
+import NavigationBar from '../Navigation/NavigationBar';
 import CareerChart from './CareerChart'; // Assume this is your chart component
 import JobDetails from './JobDetails'; // Assume this handles job details pop-ups
 import SearchSection from './SearchSection';
+import Footer from '../Footer/Footer'
 
 const CareerPaths = () => {
   const data = {
@@ -53,15 +54,24 @@ const CareerPaths = () => {
 
 
   return (
-    <Box sx={{ p: 2 }}>
-      <NavigationBar homeButton={true} />
-      <Typography variant="h4" sx={{ mb: 2 }}>
-        Explore Graduate Career Paths
-      </Typography>
-      <SearchSection />
-      <CareerChart data={data} />
-      <JobDetails />
-    </Box>
+    <div style={{display: 'flex', flexDirection: 'column', height: '98vh', margin: -10}}>
+      <div style={{margin: '0px', height: '10%', padding: '0px', boxSizing: 'border-box'}}>
+        <NavigationBar homeButton={true}/>
+      </div>
+      <Box sx={{ p: 2 }} style={{height: '80%'}}>
+        <Typography variant="h4" sx={{ mb: 2 }} style={{padding: '10px 0 0 10px', margin: 0}}>
+          Explore Graduate Career Paths
+        </Typography>
+        <SearchSection/>
+        <div style={{display: 'flex', justifyContent: 'flex-start', alignItems: 'center'}}>
+          <CareerChart data={data}/>
+        </div>
+        <JobDetails />
+      </Box>
+      <div style={{height: '10%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+        <Footer />
+      </div>
+    </div>
   );
 };
 

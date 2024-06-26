@@ -78,7 +78,7 @@ const SankeyChart = ({ data }) => {
 
     }, [data]);
 
-    return <svg ref={svgRef} width={960} height={500} style={{ border: "1px solid black", margin: "20px" }} />;
+    return <svg ref={svgRef} width={1260} height={500} style={{margin: "20px" }} />;
 };
 
 export default SankeyChart;

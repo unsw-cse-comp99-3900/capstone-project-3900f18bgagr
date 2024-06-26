@@ -1,13 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { BrowserRouter } from 'react-router-dom';
 import App from './App';  // Adjust if your App component is defined elsewhere
 
 ReactDOM.render(
   <React.StrictMode>
-    <BrowserRouter>
+    <div style={{border: '0px solid black'}}>
       <App />
-    </BrowserRouter>
+    </div> 
   </React.StrictMode>,
   document.getElementById('root')
 );

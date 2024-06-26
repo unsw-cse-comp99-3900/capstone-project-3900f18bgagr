@@ -6,7 +6,7 @@ const MyPersonalizedCareerPlan = () => {
   const navigate = useNavigate(); // Correctly initialized useNavigate
 
   const handlePlanClick = () => {
-    navigate('/career-plan'); // Use navigate() to change routes
+    navigate('/CareerPlan'); // Use navigate() to change routes
   };
 
   return (

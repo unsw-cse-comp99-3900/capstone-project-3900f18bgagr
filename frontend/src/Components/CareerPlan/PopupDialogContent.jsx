@@ -81,6 +81,8 @@ export const PopupDialogContent = ({
               <Button
                 variant="contained"
                 fullWidth
+                style={{backgroundColor: '#3c009d'}}
+
                 sx={{
                   height: "100%",
                 }}

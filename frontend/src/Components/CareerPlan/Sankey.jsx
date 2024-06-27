@@ -55,17 +55,18 @@ const CareerPlanSankey = ({ sankey, setSankey }) => {
         <Grid container spacing={1} stlye={{display: 'flex', justifyContent: 'center', border: '2px solid green'}}>
           <Grid item xs={2}>
             <Button
+              style={{backgroundColor: '#3c009d'}}
               variant="contained"
               color="primary"
               onClick={() => {
                 setSankey(false);
               }}
             >
-              <Typography variant="button">Update Skills</Typography>
+              <Typography variant="button" >Update Skills</Typography>
             </Button>
           </Grid>
           <Grid item xs={2}>
-            <Button variant="contained" color="primary">
+            <Button variant="contained" color="primary" style={{backgroundColor: '#3c009d'}}>
               <Typography variant="button">Role Dictionary</Typography>
             </Button>
           </Grid>

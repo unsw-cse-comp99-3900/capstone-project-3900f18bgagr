@@ -31,6 +31,8 @@ export const ContinuePanel = ({ selected, all, setSelected, title }) => {
       <Grid item xs={8} />
       <Grid item xs={2}>
         <Button
+          variant='outlined'
+          color='secondary'        
           onClick={() => {
             setCachedSelected(selected);
           }}
@@ -40,6 +42,8 @@ export const ContinuePanel = ({ selected, all, setSelected, title }) => {
       </Grid>
       <Grid item xs={2}>
         <Button
+          variant='outlined'
+          color='secondary'
           onClick={() => {
             setSelected(cachedSelected);
           }}

@@ -13,7 +13,7 @@ const ExploreGraduateCareerPaths = () => {
       <Typography variant="h6" gutterBottom>
         Explore Graduate Career Paths
       </Typography>
-      <Button variant="contained" color="primary" onClick={handleButtonClick}>
+      <Button style={{backgroundColor: '#470da3'}} variant="contained" onClick={handleButtonClick}>
         Find your paths
       </Button>
     </Paper>

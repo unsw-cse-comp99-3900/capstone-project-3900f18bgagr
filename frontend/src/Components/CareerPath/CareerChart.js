@@ -85,7 +85,7 @@ const SankeyChart = ({ data }) => {
     return (
         <div style={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
             <svg ref={svgRef} width={1260} height={500} style={{margin: "20px" }} />;
-            <Button variant="contained" color="primary" onClick={handleSaveDiagram}>
+            <Button style={{backgroundColor: '#460f9f'}} variant="contained" color="primary" onClick={handleSaveDiagram}>
               <Typography variant="button">Save Diagram</Typography>
             </Button>
         </div>

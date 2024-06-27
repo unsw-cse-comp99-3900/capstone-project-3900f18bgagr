@@ -10,8 +10,12 @@ const NavigationBar = ({ homeButton }) => {
     navigate('/');
   };
 
+  const handleLogin = () => {
+    navigate('/loginSignUp');
+  };
+
   return (
-    <AppBar position="static" style={{ background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)', margin: 0}}>
+    <AppBar position="static" style={{ background: '#3c009d', margin: 0}}>
       <Toolbar>
         <Typography variant="h6" style={{ flexGrow: 1, textAlign: 'center' }}>
           Trajectory
@@ -21,7 +25,7 @@ const NavigationBar = ({ homeButton }) => {
             <HomeIcon />
           </IconButton>
         ) : (
-          <Button color="inherit" onClick={() => navigate('/login')}>Login</Button> // Update the navigation logic if needed
+          <Button color="inherit" onClick={handleLogin}>Login</Button> // Update the navigation logic if needed
         )}
       </Toolbar>
     </AppBar>

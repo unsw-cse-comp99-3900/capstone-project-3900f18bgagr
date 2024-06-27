@@ -1,7 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { sankey, sankeyLinkHorizontal, sankeyJustify } from 'd3-sankey';
+import { Box, Typography, Button, Grid } from "@mui/material";
 
+const handleSaveDiagram = () => {
+    alert('Diagram Saved')
+}
 const SankeyChart = ({ data }) => {
     const svgRef = useRef();
 
@@ -78,7 +82,14 @@ const SankeyChart = ({ data }) => {
 
     }, [data]);
 
-    return <svg ref={svgRef} width={1260} height={500} style={{margin: "20px" }} />;
+    return (
+        <div style={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
+            <svg ref={svgRef} width={1260} height={500} style={{margin: "20px" }} />;
+            <Button variant="contained" color="primary" onClick={handleSaveDiagram}>
+              <Typography variant="button">Save Diagram</Typography>
+            </Button>
+        </div>
+    )
 };
 
 export default SankeyChart;

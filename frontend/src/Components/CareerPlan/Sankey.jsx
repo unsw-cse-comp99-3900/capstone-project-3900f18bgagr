@@ -50,38 +50,29 @@ const CareerPlanSankey = ({ sankey, setSankey }) => {
   };
 
   return (
-    <Box sx={{ p: 2 }}>
-      <Grid container spacing={1}>
-        <Grid item xs={2}>
-          <Button variant="contained" color="primary">
-            <Typography variant="button">Save Profile</Typography>
-          </Button>
+    <div style={{display: 'flex', justifyContent: 'center'}}>
+      <Box sx={{ p: 5 }} style={{display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
+        <Grid container spacing={1} stlye={{display: 'flex', justifyContent: 'center', border: '2px solid green'}}>
+          <Grid item xs={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {
+                setSankey(false);
+              }}
+            >
+              <Typography variant="button">Update Skills</Typography>
+            </Button>
+          </Grid>
+          <Grid item xs={2}>
+            <Button variant="contained" color="primary">
+              <Typography variant="button">Role Dictionary</Typography>
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item xs={2}>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => {
-              setSankey(false);
-            }}
-          >
-            <Typography variant="button">Update Skills</Typography>
-          </Button>
-        </Grid>
-        <Grid item xs={2}>
-          <Button variant="contained" color="primary">
-            <Typography variant="button">Role Dictionary</Typography>
-          </Button>
-        </Grid>
-        <Grid item xs={5}></Grid>
-        <Grid item xs={1}>
-          <Button variant="contained" color="primary">
-            <HelpOutline />
-          </Button>
-        </Grid>
-      </Grid>
-      <CareerChart data={data} />
-    </Box>
+        <CareerChart data={data}/>
+      </Box>
+    </div>
   );
 };
 

@@ -8,7 +8,7 @@ import Footer from '../Footer/Footer'
 
 const DashboardPage = () => {
   return (
-    <div style={{display: "flex", flexDirection: 'column', height: '98vh', margin: '-10px'}}>
+    <div style={{display: "flex", width: '100%', flexDirection: 'column', height: '98vh', margin: '-10px'}}>
       <div style={{margin: '0px', height: '10%', padding: '0px', boxSizing: 'border-box'}}>
         <NavigationBar homeButton={false}/>
       </div>

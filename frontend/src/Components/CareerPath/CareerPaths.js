@@ -54,7 +54,7 @@ const CareerPaths = () => {
 
 
   return (
-    <div style={{display: 'flex', flexDirection: 'column', height: '98vh', margin: -10}}>
+    <div style={{display: 'flex', width: '100%', flexDirection: 'column', height: '98vh', margin: -10}}>
       <div style={{margin: '0px', height: '10%', padding: '0px', boxSizing: 'border-box'}}>
         <NavigationBar homeButton={true}/>
       </div>

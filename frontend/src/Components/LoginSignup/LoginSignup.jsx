@@ -34,12 +34,14 @@ const LoginSignup = () => {
      </div>
      {action === "Sign Up"?<div></div>:<div className="forgot-password">Lost Password? <span>Click Here!</span></div>}
      <div className="submit-container">
-       <div className={action === "Login" ? "submit gray":"submit"} onClick={() => {setAction("Sign Up")}}>Sign Up</div>
-       <div className={action === "Sign Up" ? "submit gray":"submit"} onClick={() => {setAction("Login")}}>Login</div> 
+       <div className={action === "Login" ? "submit gray scale":"submit"} onClick={() => {setAction("Sign Up")}}>Sign Up</div>
+       <div className={action === "Sign Up" ? "submit gray scale":"submit"} onClick={() => {setAction("Login")}}>Login</div> 
      </div>
-      <Button variant='contained' onClick={() => navigate('/')} style={{ background: '#3c009d', width: '100%', padding: '10px'}}>
-        Go back to Dashboard
-      </Button>
+     <div className="scale" style={{display: 'flex', justifyContent: 'center'}}>
+        <Button variant='contained' onClick={() => navigate('/')} className="submit gray scale" style={{background: '#3c009d', width: '100%', padding: '10px', width: '50%', scale: '1.2', borderRadius: '70px'}}>
+          Go back to Dashboard
+        </Button>
+     </div>
     </div>
   );
 };

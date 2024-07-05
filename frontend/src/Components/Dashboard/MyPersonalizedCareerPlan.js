@@ -14,7 +14,7 @@ const MyPersonalizedCareerPlan = () => {
       <Typography variant="h6" gutterBottom>
         My Personalized Career Plan
       </Typography>
-      <Button variant="contained" color="primary" onClick={handlePlanClick}>
+      <Button variant="contained" color="primary" style={{backgroundColor: '#3c009d'}} onClick={handlePlanClick}>
         Manage Plan
       </Button>
       {/* Additional interactive elements as needed */}

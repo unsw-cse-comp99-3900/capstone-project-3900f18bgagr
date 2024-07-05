@@ -10,7 +10,7 @@ const SearchSection = () => {
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2 }}>
-      <Button variant="outlined" onClick={handleAllGraduatesClick}>All CSE Graduates</Button>
+      <Button variant="outlined" color='secondary'  onClick={handleAllGraduatesClick}>All CSE Graduates</Button>
       <Typography variant="body1">or</Typography>
       <UniversityAutocomplete />
     </Box>

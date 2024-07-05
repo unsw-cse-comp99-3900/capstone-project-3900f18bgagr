@@ -124,6 +124,7 @@ const CareerPlan = () => {
                 <Button
                   variant="contained"
                   fullWidth
+                  style={{backgroundColor: '#3c009d'}}
                   sx={{
                     height: "100%",
                   }}
@@ -226,6 +227,7 @@ const CareerPlan = () => {
                   </Grid>
                   <Grid item xs={4}>
                     <Button
+                      style={{backgroundColor: '#3c009d'}}
                       variant="contained"
                       fullWidth
                       sx={{
@@ -288,6 +290,7 @@ const CareerPlan = () => {
               <Grid item xs={8} />
               <Grid item xs={4}>
                 <Button
+                style={{backgroundColor: '#3c009d'}}
                   variant="contained"
                   fullWidth
                   sx={{

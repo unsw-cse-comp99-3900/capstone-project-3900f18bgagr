@@ -50,6 +50,37 @@ print(response.json()) # for debugging
 assert response.status_code == 200
 print('\n')
 
+
+#Edit_skills_add
+Edit_skills_data = {
+    'id': userId,
+    'skills': "Python,Flask",
+    'action': "add"
+}
+# Skills: []  -> skills: [Python, Flask]
+response1 = requests.put(f"{base_url}/Edit_skills", json=Edit_skills_data)
+print(f"***REGISTER RESPONSE***:{'200 - SUCCESS' if response1.status_code == 200 else 'FAIL - SOMETHING WENT WRONG!'}")
+print("Response JSON(Edit_skille):")
+print(response1.json())
+assert response1.status_code == 200
+print('\n')
+
+#Edit_skills_remove
+Edit_skills_remove_data = {
+    'id': userId,
+    'skills': "Flask",
+    'action': "remove"
+}
+
+# skills:[Python, Flask] -> skills: [Python]
+
+response2 = requests.put(f"{base_url}/Edit_skills", json=Edit_skills_remove_data)
+print(f"***REGISTER RESPONSE***:{'200 - SUCCESS' if response2.status_code == 200 else 'FAIL - SOMETHING WENT WRONG!'}")
+print("Response JSON(Edit_skille):")
+print(response2.json())
+assert response2.status_code == 200
+print('\n')
+
 # Logout
 logoutData = {
     "id": userId # Note: your logout api only requires userId.
@@ -81,5 +112,6 @@ print('\n')
 
 # else:
 #     print("Login failed, cannot proceed with Edit Skills and Logout tests.")
+
 
 print("All test case passed.")

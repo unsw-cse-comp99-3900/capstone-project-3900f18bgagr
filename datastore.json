@@ -1,1 +1,0 @@
-{"users": [{"user_id": 0, "email": "xren54222925@gmail.com", "password": "c822a0abf4ef0a5fc2a4c2010ed111e16af3ae95cee462a55e7877b8623ade36", "first_name": "John", "last_name": "Doe", "handle": "johndoe", "ban": false, "Verification_code": "", "skill": []}], "active_user": [], "secret_code_base": [0, 1, 2, 3, 4, 5, 6, 8, 9], "secret_code_loop_time": 0}

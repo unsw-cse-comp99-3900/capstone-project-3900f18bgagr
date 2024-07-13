@@ -25,13 +25,13 @@ def createDatabase(dbFile):
       c = conn.cursor()
       c.execute('''DROP TABLE IF EXISTS accounts''')
       c.execute('''CREATE TABLE accounts
-               (id TEXT,
-                email TEXT PRIMARY KEY,
+               (id TEXT PRIMARY KEY,
+                email TEXT,
                 firstName TEXT,
                 lastName TEXT,
                 password TEXT,
-                skills ,
-                Token TEXT)''')
+                skills TEXT,
+                token TEXT)''')
       conn.commit()
    except sqlite3.Error as e:
       api.abort(503)
@@ -87,7 +87,6 @@ class Register(Resource):
     def post(self):
         try:
             data = request.json
-            print(data)
 
             # add to database
             email = data['email']
@@ -104,13 +103,15 @@ class Register(Resource):
 
             conn = sqlite3.connect(dbFile)
             c = conn.cursor()
-            insertQuery = "INSERT INTO accounts (user_id, email, firstName, lastName, password, token) VALUES (?, ?, ?, ?, ?, ?)"
+            insertQuery = "INSERT INTO accounts (id, email, firstName, lastName, password, token) VALUES (?, ?, ?, ?, ?, ?)"
             insertValues = (user_id, email, firstName, lastName, password, token)
             c.execute(insertQuery, insertValues)
             conn.commit()
             conn.close()
             
-            return {"message": "Registration successful", "id": user_id}, 200
+            return {"id": user_id,
+                    "token": token
+                    }, 200
         except Exception as e:
             return {"message": "An error occurred in registration", "error": str(e)}, 400
 
@@ -125,13 +126,13 @@ class Login(Resource):
         try:
             data = request.json
             id = data['id']
+            email = data['email']
             password = data['password']
             userDetails = getUserDetails(id)
+            id = userDetails[0]
+            print(userDetails)
 
-            if userDetails and id == userDetails[0] and password == userDetails[4]:
-                if userDetails[7] is not None:  
-                    return {"message": "User already logged in"}, 403
-                
+            if userDetails and email == userDetails[1] and password == userDetails[4]:
                 new_token = secrets.token_hex(16)
 
                 conn = sqlite3.connect(dbFile)
@@ -140,7 +141,8 @@ class Login(Resource):
                 conn.commit()
                 conn.close()
 
-                return {"message": "Login successful"}, 200
+                return {"id": id,
+                        "token": new_token}, 200
             else:
                 return {"message": "Unauthorized"}, 401
 
@@ -150,15 +152,16 @@ class Login(Resource):
 
 @api.route('/logout')
 class Logout(Resource):
-    @api.expect(logout_model)
+    # @api.expect(logout_model)
     @api.response(200, 'Logout successful')
     @api.response(401, 'Logout fail')
     def post(self):
         try:
             data = request.json
-            user_id = data('id')
+            print("***" * 5)
+            print(data)
+            user_id = data['id']
             userDetails = getUserDetails(user_id)
-
             if userDetails and user_id == userDetails[0]:
                 conn = sqlite3.connect(dbFile)
                 c = conn.cursor()
@@ -168,7 +171,7 @@ class Logout(Resource):
 
                 return {"message": "Logout successful"}, 200
             else:
-                return {"message": "Invaild user id"}, 200
+                return {"message": "Invaild user id"}, 400
         except Exception as e:
             return {"message": "An error occurred in logout", "error": str(e)}, 500
 

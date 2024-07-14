@@ -5,6 +5,9 @@ from pathlib import Path
 import sqlite3
 import uuid
 import secrets
+from flask import Flask
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 api = Api(app,
@@ -12,6 +15,7 @@ api = Api(app,
           title = 'Deutsche Bahn Stops and Guide API',
           description = 'Additional features on top of Deutsche Bahn Stops and Guide API'
           )
+CORS(app)
 
 # INITIALIZATION
 dbFile = "accounts.db"
@@ -41,14 +45,23 @@ def createDatabase(dbFile):
 
 def getUserDetails(id):
     try:
+        print('hererere')
         conn = sqlite3.connect(dbFile)
         c = conn.cursor()
         c.execute("SELECT * FROM accounts WHERE id = ?", (id,))
         userDetails = c.fetchone()  # Fetch single row
-        return userDetails
+        
+        if userDetails:
+            print("User details found:", userDetails)
+            return userDetails
+        else:
+            print("User details not found")
+            return None  # or handle as needed
+        
     except sqlite3.Error as e:
         print(f"Error fetching user details: {e}")
-        raise
+        raise  # Rethrow the exception to handle it at a higher level
+
     finally:
         if conn:
             conn.close()
@@ -86,6 +99,7 @@ class Register(Resource):
 
     def post(self):
         try:
+            print('Someone trying to register ...')
             data = request.json
 
             # add to database
@@ -94,9 +108,12 @@ class Register(Resource):
             lastName = data['lastName']
             password = data['password']
             confirmPassword = data['confirmPassword']
+            print('Data received==========')
+            print(password, confirmPassword) 
             if password != confirmPassword:
-                return {"Error: Password don't match"}, 400
+                return {"Error": "Password don't match"}, 400
             
+            print('Data received==========')
             #unique user ID
             user_id = str(uuid.uuid4())
             token = secrets.token_hex(16)
@@ -109,6 +126,7 @@ class Register(Resource):
             conn.commit()
             conn.close()
             
+            print(f'returning userId: {user_id}, token: {token}')
             return {"id": user_id,
                     "token": token
                     }, 200
@@ -149,6 +167,35 @@ class Login(Resource):
         except Exception as e:
             return {"message": "An error occurred in login", "error": str(e)}, 500
         
+
+@api.route('/userDetails')
+class userDetails(Resource):
+    # @api.expect(logout_model)
+    @api.response(200, 'Get details successful')
+    @api.response(401, 'Get details fail')
+    def get(self):
+        try:
+            data = request.headers
+            userId = data['id']
+            userToken = data['Authorization']
+            print(f'userId: {userId}')
+            if userId:
+                print(userId, type(userId))
+                userDetails = getUserDetails(userId)
+                if len(userDetails) > 0:
+                    return {
+                        'id': userDetails[0],
+                        'email': userDetails[1],
+                        'firstName': userDetails[2],
+                        'lastName': userDetails[3],
+                        'skills': userDetails[5]
+                    }, 200
+                else:
+                    print("User Details not found")
+            else:
+                print('No user id provided: User id = ', userId)
+        except Exception as e:
+            return {"message": "An error occurred in logout", "error": str(e)}, 500
 
 @api.route('/logout')
 class Logout(Resource):

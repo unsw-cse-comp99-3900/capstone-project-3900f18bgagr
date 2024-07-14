@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './LoginSignup.css'
 import { AppBar, Toolbar, Typography, IconButton, Button } from '@mui/material';
 
@@ -8,16 +8,87 @@ import password_icon from '../Assets/password.png'
 import { useNavigate } from 'react-router-dom';
 import NavigationBar from '../Navigation/NavigationBar'
 
-const LoginSignup = () => {
+const LoginSignup = (props) => {
 
   const navigate = useNavigate()
   const [action, setAction] = useState("Login");
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [signUpEmail, setSignUpEmail] = useState("");
+  const [signUpFirstName, setSignUpFirstName] = useState("");
+  const [signUpLastName, setSignUpLastName] = useState("");
+  const [signUpPassword, setSignUpPassword] = useState("");
+  const [signUpConfirmPassword, setSignUpConfirmPassword] = useState("");
+
+  // useEffect(() => {
+  //   sessionToken = localStorage.getItem("token")
+  // }, [])
+
+  // const login = async () => {
+  //   const response = await fetch("http://localhost:5000/user/auth/login", {
+  //     method: "POST",
+  //     body: JSON.stringify({
+  //       loginEmail,
+  //       loginPassword,
+  //     }),
+  //     headers: {
+  //       "Content-type": "application/json",
+  //     },
+  //   });
+  //   const data = await response.json();
+  //   if (data.error) {
+  //     alert(data.error);
+  //   } else if (data.token) {
+  //     localStorage.setItem("token", data.token);
+  //     setToken(() => data.token);
+  //     localStorage.setItem("user", loginEmail);
+  //     navigate("/");
+  //     console.log(token)
+  //     console.log(loginEmail)
+  //   }
+  // };
+
+  const signUp = async () => {
+    const response = await fetch("http://localhost:5000/register", {
+      method: "POST",
+      body: JSON.stringify({
+        'email': signUpEmail,
+        'firstName': signUpFirstName,
+        'lastName': signUpLastName,
+        'password': signUpPassword,
+        'confirmPassword': signUpConfirmPassword,
+      }),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      alert(`Error: Passwords don't match`);
+    } else {
+      const data = await response.json();
+      props.setToken(data.token);
+      props.setUserId(data.id);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("id", data.id);
+      navigate("/");
+    }
+  };
 
   const handleSubmit = () => {
     if (action == "Login") {
       alert("Loggin in...")
+      console.log(loginEmail)
+      console.log(loginPassword)
+      // if not registered, display user id or password not found.
     } else if (action == "SignUp"){
       alert("Signing up...")
+      // console.log(signUpEmail)
+      // console.log(signUpFirstName)
+      // console.log(signUpLastName)
+      // console.log(signUpPassword)
+      // console.log(signUpConfirmPassword)
+      signUp()
+      // if already registered, display email already registered and display Lost password?
     }
   }
 
@@ -36,33 +107,67 @@ const LoginSignup = () => {
           <>
             <div className="input">
               <img src={email_icon} alt="" />   
-              <input type="email" placeholder='Email'/>
+              <input 
+                type="email" 
+                placeholder='Email' 
+                value={loginEmail} 
+                onChange={(e) => setLoginEmail(e.target.value)}/>
             </div> 
             <div className="input">
               <img src={password_icon} alt="" />   
-              <input type="password" placeholder='Password'/>
+              <input 
+                type="password"
+                placeholder='Password'
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+              />
           </div>
           </>:
           <>
           <div className="input">
             <img src={email_icon} alt="" />   
-            <input type="email" placeholder='Email'/>
+            <input 
+              type="email" 
+              placeholder='Email'
+              value={signUpEmail}
+              onChange={(e) => setSignUpEmail(e.target.value)}
+            />
           </div> 
           <div className="input">
             <img src={user_icon} alt="" />   
-            <input type="text" placeholder='First Name' />
+            <input 
+              type="text" 
+              placeholder='First Name' 
+              value={signUpFirstName}
+              onChange={(e) => setSignUpFirstName(e.target.value)}
+            />
           </div>
           <div className="input">
             <img src={user_icon} alt="" />   
-            <input type="text" placeholder='Last Name' />
+            <input 
+              type="text" 
+              placeholder='Last Name' 
+              value={signUpLastName}
+              onChange={(e) => setSignUpLastName(e.target.value)}
+            />
           </div>
           <div className="input">
             <img src={password_icon} alt="" />   
-            <input type="password" placeholder='Password'/>
+            <input 
+              type="password" 
+              placeholder='Password'
+              value={signUpPassword}
+              onChange={(e) => setSignUpPassword(e.target.value)}
+            />
           </div>
           <div className="input">
             <img src={password_icon} alt="" />   
-            <input type="password" placeholder='Confirm Password'/>
+            <input 
+              type="password" 
+              placeholder='Confirm Password'
+              value={signUpConfirmPassword}
+              onChange={(e) => setSignUpConfirmPassword(e.target.value)}
+            />
           </div>
           </>}
       </div>

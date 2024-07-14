@@ -3,6 +3,11 @@ from flask_restx import Resource, Api, fields, inputs, reqparse
 import json, os
 from pathlib import Path
 import sqlite3
+import uuid
+import secrets
+from flask import Flask
+from flask_cors import CORS
+
 
 app = Flask(__name__)
 api = Api(app,
@@ -10,6 +15,7 @@ api = Api(app,
           title = 'Deutsche Bahn Stops and Guide API',
           description = 'Additional features on top of Deutsche Bahn Stops and Guide API'
           )
+CORS(app)
 
 # INITIALIZATION
 dbFile = "accounts.db"
@@ -23,10 +29,13 @@ def createDatabase(dbFile):
       c = conn.cursor()
       c.execute('''DROP TABLE IF EXISTS accounts''')
       c.execute('''CREATE TABLE accounts
-               (email TEXT PRIMARY KEY,
+               (id TEXT PRIMARY KEY,
+                email TEXT,
                 firstName TEXT,
                 lastName TEXT,
-                password TEXT)''')
+                password TEXT,
+                skills TEXT,
+                token TEXT)''')
       conn.commit()
    except sqlite3.Error as e:
       api.abort(503)
@@ -34,32 +43,51 @@ def createDatabase(dbFile):
       if conn:
          conn.close()
 
-def getUserDetails(email):
+def getUserDetails(id):
     try:
+        print('hererere')
         conn = sqlite3.connect(dbFile)
         c = conn.cursor()
-        c.execute("SELECT * FROM accounts WHERE email = ?", (email,))
+        c.execute("SELECT * FROM accounts WHERE id = ?", (id,))
         userDetails = c.fetchone()  # Fetch single row
-        return userDetails
+        
+        if userDetails:
+            print("User details found:", userDetails)
+            return userDetails
+        else:
+            print("User details not found")
+            return None  # or handle as needed
+        
     except sqlite3.Error as e:
         print(f"Error fetching user details: {e}")
-        raise
+        raise  # Rethrow the exception to handle it at a higher level
+
     finally:
         if conn:
             conn.close()
 
 # MODELS
 registrationModel = api.model('Register', {
-   "email": fields.String,
-   "firstName": fields.String,
-   "lastName": fields.String,
-   "password": fields.String,
-   "confirmPassword": fields.String
+    "email": fields.String,
+    "firstName": fields.String,
+    "lastName": fields.String,
+    "password": fields.String,
+    "confirmPassword": fields.String,
 })
 
 login_model = api.model('Login', {
-    'email': fields.String(required=True, description='Username'),
-    'password': fields.String(required=True, description='Password')
+    "id": fields.String(required=True, description='Username'),
+    "password": fields.String(required=True, description='Password')
+})
+
+logout_model = api.model('Logout',  {
+    "id": fields.String(required=True, description='Username'),
+})
+
+edit_skills_model = api.model('Edit_skills',  {
+    'id': fields.String(required=True, description='Username'),
+    'skills': fields.List(fields.String, required=True, description='List of skills to add or remove'),
+    'action': fields.String(required=True, description='Action to perform: add or remove')
 })
 
 @api.route('/register')
@@ -71,8 +99,8 @@ class Register(Resource):
 
     def post(self):
         try:
+            print('Someone trying to register ...')
             data = request.json
-            print(data)
 
             # add to database
             email = data['email']
@@ -80,18 +108,28 @@ class Register(Resource):
             lastName = data['lastName']
             password = data['password']
             confirmPassword = data['confirmPassword']
+            print('Data received==========')
+            print(password, confirmPassword) 
             if password != confirmPassword:
-                return {"Error: Password don't match"}, 400
+                return {"Error": "Password don't match"}, 400
+            
+            print('Data received==========')
+            #unique user ID
+            user_id = str(uuid.uuid4())
+            token = secrets.token_hex(16)
 
             conn = sqlite3.connect(dbFile)
             c = conn.cursor()
-            insertQuery = "INSERT INTO accounts (email, firstName, lastName, password) VALUES (?, ?, ?, ?)"
-            insertValues = (email, firstName, lastName, password)
+            insertQuery = "INSERT INTO accounts (id, email, firstName, lastName, password, token) VALUES (?, ?, ?, ?, ?, ?)"
+            insertValues = (user_id, email, firstName, lastName, password, token)
             c.execute(insertQuery, insertValues)
             conn.commit()
             conn.close()
             
-            return {"message": "Registration successful"}, 200
+            print(f'returning userId: {user_id}, token: {token}')
+            return {"id": user_id,
+                    "token": token
+                    }, 200
         except Exception as e:
             return {"message": "An error occurred in registration", "error": str(e)}, 400
 
@@ -100,22 +138,130 @@ class Login(Resource):
     @api.expect(login_model)
     @api.response(200, 'Login successful')
     @api.response(401, 'Unauthorized')
+    @api.response(403, 'Logined')
     
     def post(self):
         try:
             data = request.json
+            id = data['id']
             email = data['email']
             password = data['password']
-            userDetails = getUserDetails(email)
-            print(userDetails[0])
-            if email == userDetails[0] and password == userDetails[3]:
-                return {"message": "Login successful"}, 200
+            userDetails = getUserDetails(id)
+            id = userDetails[0]
+            print(userDetails)
+
+            if userDetails and email == userDetails[1] and password == userDetails[4]:
+                new_token = secrets.token_hex(16)
+
+                conn = sqlite3.connect(dbFile)
+                c = conn.cursor()
+                c.execute("UPDATE accounts SET token = ? WHERE id = ?", (new_token, id))
+                conn.commit()
+                conn.close()
+
+                return {"id": id,
+                        "token": new_token}, 200
             else:
                 return {"message": "Unauthorized"}, 401
 
         except Exception as e:
             return {"message": "An error occurred in login", "error": str(e)}, 500
+        
+
+@api.route('/userDetails')
+class userDetails(Resource):
+    # @api.expect(logout_model)
+    @api.response(200, 'Get details successful')
+    @api.response(401, 'Get details fail')
+    def get(self):
+        try:
+            data = request.headers
+            userId = data['id']
+            userToken = data['Authorization']
+            print(f'userId: {userId}')
+            if userId:
+                print(userId, type(userId))
+                userDetails = getUserDetails(userId)
+                if len(userDetails) > 0:
+                    return {
+                        'id': userDetails[0],
+                        'email': userDetails[1],
+                        'firstName': userDetails[2],
+                        'lastName': userDetails[3],
+                        'skills': userDetails[5]
+                    }, 200
+                else:
+                    print("User Details not found")
+            else:
+                print('No user id provided: User id = ', userId)
+        except Exception as e:
+            return {"message": "An error occurred in logout", "error": str(e)}, 500
+
+@api.route('/logout')
+class Logout(Resource):
+    # @api.expect(logout_model)
+    @api.response(200, 'Logout successful')
+    @api.response(401, 'Logout fail')
+    def post(self):
+        try:
+            data = request.json
+            print("***" * 5)
+            print(data)
+            user_id = data['id']
+            userDetails = getUserDetails(user_id)
+            if userDetails and user_id == userDetails[0]:
+                conn = sqlite3.connect(dbFile)
+                c = conn.cursor()
+                c.execute("UPDATE accounts SET token = NULL WHERE id = ?", (user_id,))
+                conn.commit()
+                conn.close()
+
+                return {"message": "Logout successful"}, 200
+            else:
+                return {"message": "Invaild user id"}, 400
+        except Exception as e:
+            return {"message": "An error occurred in logout", "error": str(e)}, 500
+
+@api.route('/Edit_skills')
+class Edit_skills(Resource):
+    @api.expect(edit_skills_model)
+    @api.response(200, 'Edit successful')
+    @api.response(401, 'Edit failed')
     
+    def put(self):
+        try:
+            data = request.json
+            user_id = data['id']
+            skills = data['skills']
+            action = data['action']
+            userDetails = getUserDetails(user_id)
+
+            if userDetails and user_id == userDetails[0]:
+                # Get current skills from user details (assuming skills are stored as JSON string)
+                current_skills = json.loads(userDetails[6]) if userDetails[6] else []
+
+                if action == 'add':
+                    # Add new skills
+                    current_skills.extend(skill for skill in skills if skill not in current_skills)
+                elif action == 'remove':
+                    # Remove specified skills
+                    current_skills = [skill for skill in current_skills if skill not in skills]
+                else:
+                    return {"message": "Invalid action specified"}, 400
+
+                # Update skills in the database
+                conn = sqlite3.connect(dbFile)
+                c = conn.cursor()
+                c.execute("UPDATE accounts SET skills = ? WHERE id = ?", (json.dumps(current_skills), user_id))
+                conn.commit()
+                conn.close()
+
+                return {"message": "Edit successful", "skills": current_skills}, 200
+            else:
+                return {"message": "Unauthorized"}, 401
+
+        except Exception as e:
+            return {"message": "An error occurred during skill edit", "error": str(e)}, 500
 if __name__ == '__main__':
     createDatabase(dbFile)
     app.run(debug=True)

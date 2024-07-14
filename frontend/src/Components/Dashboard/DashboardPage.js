@@ -6,81 +6,54 @@ import ExploreGraduateCareerPaths from './ExploreGraduateCareerPaths';
 import MyPersonalizedCareerPlan from './MyPersonalizedCareerPlan';
 import CareerAdviceLinks from './CareerAdviceLinks';
 import Footer from '../Footer/Footer'
+import Profile from '../Profile/Profile'
+import { useNavigate } from 'react-router-dom';
 
 const DashboardPage = (props) => {
-  const [email, setEmail] = useState("")
-  const [firstName, setFirstName] = useState("")
-  const [lastName, setLastName] = useState("")
-  const [skills, setSkills] = useState("")
-  const [userId, setUserId] = useState("")
-  const getUserDetails = async () => {
-    // alert('here')
-    try {
-      const response = await fetch("http://localhost:5000/userDetails", {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: props.token,
-          'id': props.userId
-        },
-      });
-      if (!response.ok) {
-        console.log(`Error: Dashboard`);
-      } else {
-        const data = await response.json()
-        if (data.firstName !== null) {
-          setFirstName(data.firstName);
-        }
-        if (data.lastName !== null) {
-          setLastName(data.lastName);
-        }
-        if (data.email !== null) {
-          setEmail(data.email);
-        }
-        if (data.skills !== null) {
-          setSkills(data.skills);
-        }
-        if (data.id !== null) {
-          setUserId(data.id);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-      // Handle error state or alert the user
-    }
-  };
+  const navigate = useNavigate()
+  // const [email, setEmail] = useState("")
+  // const [firstName, setFirstName] = useState("")
+  // const [lastName, setLastName] = useState("")
+  // const [skills, setSkills] = useState("")
+  // const [userId, setUserId] = useState("")
   
-  useEffect(() => {
-    getUserDetails()
-  }, [props.token, props.userId])
 
-  useEffect(() => {
-    console.log(firstName)
-    console.log(lastName)
-    console.log(email)
-    console.log("skills:", skills)
-  }, [firstName, lastName, email, userId])
+  // useEffect(() => {
+  //   console.log(firstName)
+  //   console.log(lastName)
+  //   console.log(email)
+  //   console.log("skills:", skills)
+  // }, [props.firstName, props.lastName, props.email, props.userId])
+  
+  
 
   return (
     <div style={{display: "flex", width: '100%', flexDirection: 'column', height: '98vh', margin: '-10px'}}>
       <div style={{margin: '0px', height: '10%', padding: '0px', boxSizing: 'border-box'}}>
-        <NavigationBar homeButton={false}/>
+        {props.userId ? <NavigationBar homeButton={'logout'} setEmail={props.setEmail} setToken={props.setToken} setUserId={props.setUserId}/> : <NavigationBar homeButton={false} />}
       </div>
       <div style={{ padding: "20px", height: '80%'}}>
         <Grid container spacing={3} >
-          {email && firstName && lastName ? 
-            <Grid item xs={12} md={8}>
-              Email: {email} <br />
-              Name: {firstName} {lastName} <br />
-              User Id: {userId} <br />
-            </Grid>
-          : <></>}
-          <Grid item xs={12} md={4}>
-            <CareerAdviceLinks />
-          </Grid>
-          <Grid item xs={12} md={12}>
-            <ExploreGraduateCareerPaths />
-          </Grid>
+          {props.email && props.firstName && props.lastName ? 
+            <>
+              <Grid item xs={12} md={8}>
+                <Profile firstName={props.firstName} lastName={props.lastName} email={props.email} userId={props.userId}/>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <CareerAdviceLinks />
+              </Grid>
+              <Grid item xs={12} md={12}>
+                <ExploreGraduateCareerPaths />
+              </Grid>
+            </> :
+            <>
+              <Grid item xs={12} md={8}>
+                <ExploreGraduateCareerPaths />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <CareerAdviceLinks />
+              </Grid>
+            </>}
           <Grid item xs={12}>
             <MyPersonalizedCareerPlan />
           </Grid>

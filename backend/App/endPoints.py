@@ -5,7 +5,7 @@ from pathlib import Path
 import sqlite3
 import uuid
 import secrets
-from flask import Flaskgit
+from flask import Flask
 from flask_cors import CORS
 
 
@@ -224,7 +224,7 @@ class Logout(Resource):
             return {"message": "An error occurred in logout", "error": str(e)}, 500
 
 @api.route('/Edit_detail')
-class Edit_skills(Resource):
+class Edit_detail(Resource):
     @api.expect(edit_detail_model)
     @api.response(200, 'Edit successful')
     @api.response(401, 'Edit failed')

@@ -84,10 +84,11 @@ logout_model = api.model('Logout',  {
     "id": fields.String(required=True, description='Username'),
 })
 
-edit_skills_model = api.model('Edit_skills',  {
+edit_detail_model = api.model('Edit_detail',  {
     'id': fields.String(required=True, description='Username'),
-    'skills': fields.List(fields.String, required=True, description='List of skills to add or remove'),
-    'action': fields.String(required=True, description='Action to perform: add or remove')
+    'firstName': fields.String(description='First Name'),
+    'lastName': fields.String(description='Last Name'),
+    'skills': fields.List(fields.String, description='List of skills')
 })
 
 @api.route('/register')
@@ -222,46 +223,49 @@ class Logout(Resource):
         except Exception as e:
             return {"message": "An error occurred in logout", "error": str(e)}, 500
 
-@api.route('/Edit_skills')
+@api.route('/Edit_detail')
 class Edit_skills(Resource):
-    @api.expect(edit_skills_model)
+    @api.expect(edit_detail_model)
     @api.response(200, 'Edit successful')
     @api.response(401, 'Edit failed')
     
-    def put(self):
+    def patch(self):
         try:
             data = request.json
             user_id = data['id']
-            skills = data['skills']
-            action = data['action']
+            new_firstName = data.get('firstName')
+            new_lastName = data.get('lastName')
+            new_skills = data.get('skills')
+
             userDetails = getUserDetails(user_id)
 
             if userDetails and user_id == userDetails[0]:
-                # Get current skills from user details (assuming skills are stored as JSON string)
-                current_skills = json.loads(userDetails[6]) if userDetails[6] else []
+                update_fields = {}
+                if new_firstName:
+                    update_fields['firstName'] = new_firstName
+                if new_lastName:
+                    update_fields['lastName'] = new_lastName
+                if new_skills is not None:
+                    update_fields['skills'] = json.dumps(new_skills)
 
-                if action == 'add':
-                    # Add new skills
-                    current_skills.extend(skill for skill in skills if skill not in current_skills)
-                elif action == 'remove':
-                    # Remove specified skills
-                    current_skills = [skill for skill in current_skills if skill not in skills]
+                if update_fields:
+                    update_query = "UPDATE accounts SET " + ", ".join(f"{key} = ?" for key in update_fields.keys()) + " WHERE id = ?"
+                    update_values = list(update_fields.values()) + [user_id]
+
+                    conn = sqlite3.connect(dbFile)
+                    c = conn.cursor()
+                    c.execute(update_query, update_values)
+                    conn.commit()
+                    conn.close()
+
+                    return {"message": "Edit successful"}, 200
                 else:
-                    return {"message": "Invalid action specified"}, 400
-
-                # Update skills in the database
-                conn = sqlite3.connect(dbFile)
-                c = conn.cursor()
-                c.execute("UPDATE accounts SET skills = ? WHERE id = ?", (json.dumps(current_skills), user_id))
-                conn.commit()
-                conn.close()
-
-                return {"message": "Edit successful", "skills": current_skills}, 200
+                    return {"message": "No updates provided"}, 400
             else:
                 return {"message": "Unauthorized"}, 401
 
         except Exception as e:
-            return {"message": "An error occurred during skill edit", "error": str(e)}, 500
+            return {"message": "An error occurred during detail edit", "error": str(e)}, 500
 if __name__ == '__main__':
     createDatabase(dbFile)
     app.run(debug=True)

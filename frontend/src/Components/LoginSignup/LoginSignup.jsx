@@ -104,7 +104,6 @@ const LoginSignup = (props) => {
       logIn()
       // if not registered, display user id or password not found.
     } else if (action == "SignUp"){
-      alert("Signing up...")
       // console.log(signUpEmail)
       // console.log(signUpFirstName)
       // console.log(signUpLastName)

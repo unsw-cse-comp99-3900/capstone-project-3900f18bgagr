@@ -7,37 +7,72 @@ import MyPersonalizedCareerPlan from './MyPersonalizedCareerPlan';
 import CareerAdviceLinks from './CareerAdviceLinks';
 import Footer from '../Footer/Footer'
 import Profile from '../Profile/Profile'
+import Skills from '../Skills/Skills'
 import { useNavigate } from 'react-router-dom';
 
 const DashboardPage = (props) => {
   const navigate = useNavigate()
-  // const [email, setEmail] = useState("")
-  // const [firstName, setFirstName] = useState("")
-  // const [lastName, setLastName] = useState("")
-  // const [skills, setSkills] = useState("")
-  // const [userId, setUserId] = useState("")
-  
+  const [email, setEmail] = useState("")
+  const [firstName, setFirstName] = useState("")
+  const [lastName, setLastName] = useState("")
+  const [userSkills, setUserSkills] = useState([])
 
-  // useEffect(() => {
-  //   console.log(firstName)
-  //   console.log(lastName)
-  //   console.log(email)
-  //   console.log("skills:", skills)
-  // }, [props.firstName, props.lastName, props.email, props.userId])
+  const getUserDetails = async () => {
+    // alert('here')
+    try {
+      const response = await fetch("http://localhost:5000/userDetails", {
+        method: "GET",
+        headers: {
+          "Content-type": "application/json",
+          Authorization: props.token,
+          'id': props.userId
+        },
+      });
+      if (!response.ok) {
+        console.log(`Error: Dashboard`);
+      } else {
+        const data = await response.json()
+        if (data.firstName !== null) {
+          setFirstName(data.firstName);
+        }
+        if (data.lastName !== null) {
+          setLastName(data.lastName);
+        }
+        if (data.email !== null) {
+          setEmail(data.email);
+        }
+        if (data.userSkills !== null) {
+          const parsedSkills = props.userSkills.split(',').map(skill => ({
+            title: skill.trim()
+          }));
+          setUserSkills(parsedSkills);
+        }
+        if (data.id !== null) {
+          props.setUserId(data.id);
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching user details:", error);
+      // Handle error state or alert the user
+    }
+  };
   
-  
+  useEffect(() => {
+    getUserDetails()
+  }, [props.token, props.userId])
+
 
   return (
     <div style={{display: "flex", width: '100%', flexDirection: 'column', height: '98vh', margin: '-10px'}}>
       <div style={{margin: '0px', height: '10%', padding: '0px', boxSizing: 'border-box'}}>
-        {props.userId ? <NavigationBar homeButton={'logout'} setEmail={props.setEmail} setToken={props.setToken} setUserId={props.setUserId}/> : <NavigationBar homeButton={false} />}
+        {props.userId ? <NavigationBar homeButton={'logout'} setEmail={setEmail} setToken={props.setToken} setUserId={props.setUserId}/> : <NavigationBar homeButton={false} />}
       </div>
       <div style={{ padding: "20px", height: '80%'}}>
         <Grid container spacing={3} >
-          {props.email && props.firstName && props.lastName ? 
+          {email && firstName && lastName ? 
             <>
               <Grid item xs={12} md={8}>
-                <Profile firstName={props.firstName} lastName={props.lastName} email={props.email} userId={props.userId}/>
+                <Profile firstName={firstName} lastName={lastName} email={email} userSkills={userSkills} setUserSkills={setUserSkills} userId={props.userId}/>
               </Grid>
               <Grid item xs={12} md={4}>
                 <CareerAdviceLinks />

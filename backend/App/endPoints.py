@@ -43,12 +43,16 @@ def createDatabase(dbFile):
       if conn:
          conn.close()
 
-def getUserDetails(id):
+def getUserDetails(id, email='notProvided'):
     try:
-        print('hererere')
         conn = sqlite3.connect(dbFile)
         c = conn.cursor()
-        c.execute("SELECT * FROM accounts WHERE id = ?", (id,))
+        if id:
+            print('id')
+            c.execute("SELECT * FROM accounts WHERE id = ?", (id,))
+        else:
+            print('email')
+            c.execute("SELECT * FROM accounts WHERE email = ?", (email,))
         userDetails = c.fetchone()  # Fetch single row
         
         if userDetails:
@@ -144,12 +148,10 @@ class Login(Resource):
     def post(self):
         try:
             data = request.json
-            id = data['id']
             email = data['email']
             password = data['password']
-            userDetails = getUserDetails(id)
+            userDetails = getUserDetails(None, email)
             id = userDetails[0]
-            print(userDetails)
 
             if userDetails and email == userDetails[1] and password == userDetails[4]:
                 new_token = secrets.token_hex(16)
@@ -160,6 +162,7 @@ class Login(Resource):
                 conn.commit()
                 conn.close()
 
+                print(f'id: {id}, token: {new_token}')
                 return {"id": id,
                         "token": new_token}, 200
             else:

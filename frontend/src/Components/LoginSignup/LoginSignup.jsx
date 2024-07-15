@@ -74,11 +74,34 @@ const LoginSignup = (props) => {
     }
   };
 
+  const logIn = async () => {
+    const response = await fetch("http://localhost:5000/login", {
+      method: "POST",
+      body: JSON.stringify({
+        'email': loginEmail,
+        'password': loginPassword,
+      }),
+      headers: {
+        "Content-type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      alert(`Error: Account not found`);
+    } else {
+      const data = await response.json();
+      props.setToken(data.token);
+      props.setUserId(data.id);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("id", data.id);
+      navigate("/");
+    }
+  };
+
+
+
   const handleSubmit = () => {
     if (action == "Login") {
-      alert("Loggin in...")
-      console.log(loginEmail)
-      console.log(loginPassword)
+      logIn()
       // if not registered, display user id or password not found.
     } else if (action == "SignUp"){
       alert("Signing up...")

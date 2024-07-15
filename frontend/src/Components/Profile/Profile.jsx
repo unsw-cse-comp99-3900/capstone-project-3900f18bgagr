@@ -12,7 +12,7 @@ const Profile = (props) => {
   return (
     <Paper style={{ padding: 16 }}>
       <Typography variant="h5" gutterBottom>
-        Profile
+        My Profile
       </Typography>
       <Typography variant="h7" gutterBottom>
         Name: {props.firstName} {props.lastName} <br />

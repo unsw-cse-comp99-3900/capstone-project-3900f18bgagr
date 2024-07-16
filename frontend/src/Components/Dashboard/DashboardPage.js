@@ -41,14 +41,12 @@ const DashboardPage = (props) => {
         if (data.email !== null) {
           setEmail(data.email);
         }
-        if (data.userSkills !== null) {
-          const parsedSkills = props.userSkills.split(',').map(skill => ({
+        if (data.skills !== null) {
+          const parsedSkills = data.skills.split(',').map(skill => ({
             title: skill.trim()
           }));
-          setUserSkills(parsedSkills);
-        }
-        if (data.id !== null) {
-          props.setUserId(data.id);
+          setUserSkills(() => parsedSkills);
+          console.log('user skills:', userSkills)
         }
       }
     } catch (error) {

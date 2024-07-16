@@ -23,12 +23,28 @@ const Profile = (props) => {
     { title: 'PostgreSQL' },
   ];
 
-  console.log(props.userSkills)
-  const handleUpdate = () => {
+  const handleUpdate = async () => {
+    try {
+      // const uniqueSkills = [...new Set(props.userSkills.map(skill => skill.title))];
+      const response = await fetch("http://localhost:5000/Edit_detail", {
+        method: "PATCH",
+        body: JSON.stringify({
+          "skills": props.userSkills.map(skill => skill.title).join(','),
+        }),
+        headers: {
+          "Content-type": "application/json",
+          Authorization: props.token,
+          'id': props.userId
+        },
+      });
 
-    alert('Updating ...')
-    // fetch
-    //   "skills" = props.userSkills.map(skill => skill.title).join(',')
+      if (!response.ok) {
+        alert('Update failed')
+      }
+
+    } catch (error) {
+      console.error("Error fetching updating skills:", error);
+    }
   }
 
   return (
@@ -60,7 +76,9 @@ const Profile = (props) => {
           getOptionLabel={(option) => option.title}
           value={props.userSkills}
           onChange={(event, newValue) => {
-            props.setUserSkills(newValue);
+            // props.setUserSkills(newValue); # this does not filter duplicates!
+            const uniqueNewValue = newValue.filter((v, i, a) => a.findIndex(t => t.title === v.title) === i);
+            props.setUserSkills(uniqueNewValue);
           }}
           renderInput={(params) => (
             <TextField {...params} variant="outlined" label="Skills" placeholder="Select skills" />

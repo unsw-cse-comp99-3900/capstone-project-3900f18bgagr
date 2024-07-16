@@ -48,18 +48,14 @@ def getUserDetails(id, email='notProvided'):
         conn = sqlite3.connect(dbFile)
         c = conn.cursor()
         if id:
-            print('id')
             c.execute("SELECT * FROM accounts WHERE id = ?", (id,))
         else:
-            print('email')
             c.execute("SELECT * FROM accounts WHERE email = ?", (email,))
         userDetails = c.fetchone()  # Fetch single row
         
         if userDetails:
-            print("User details found:", userDetails)
             return userDetails
         else:
-            print("User details not found")
             return None  # or handle as needed
         
     except sqlite3.Error as e:
@@ -104,10 +100,7 @@ class Register(Resource):
 
     def post(self):
         try:
-            print('Someone trying to register ...')
             data = request.json
-
-            # add to database
             email = data['email']
             firstName = data['firstName']
             lastName = data['lastName']
@@ -118,7 +111,6 @@ class Register(Resource):
             if password != confirmPassword:
                 return {"Error": "Password don't match"}, 400
             
-            print('Data received==========')
             #unique user ID
             user_id = str(uuid.uuid4())
             token = secrets.token_hex(16)
@@ -131,7 +123,6 @@ class Register(Resource):
             conn.commit()
             conn.close()
             
-            print(f'returning userId: {user_id}, token: {token}')
             return {"id": user_id,
                     "token": token
                     }, 200
@@ -162,7 +153,6 @@ class Login(Resource):
                 conn.commit()
                 conn.close()
 
-                print(f'id: {id}, token: {new_token}')
                 return {"id": id,
                         "token": new_token}, 200
             else:
@@ -182,10 +172,8 @@ class userDetails(Resource):
             data = request.headers
             userId = data['id']
             userToken = data['Authorization']
-            print(f'userId: {userId}')
             if userId:
-                print(userId, type(userId))
-                userDetails = getUserDetails(userId)
+                userDetails = getUserDetails(userId, None)
                 if len(userDetails) > 0:
                     return {
                         'id': userDetails[0],
@@ -195,7 +183,7 @@ class userDetails(Resource):
                         'skills': userDetails[5]
                     }, 200
                 else:
-                    print("User Details not found")
+                    print("User Details not found - /userDetails")
             else:
                 print('No user id provided: User id = ', userId)
         except Exception as e:
@@ -203,16 +191,13 @@ class userDetails(Resource):
 
 @api.route('/logout')
 class Logout(Resource):
-    # @api.expect(logout_model)
     @api.response(200, 'Logout successful')
     @api.response(401, 'Logout fail')
     def post(self):
         try:
             data = request.json
-            print("***" * 5)
-            print(data)
             user_id = data['id']
-            userDetails = getUserDetails(user_id)
+            userDetails = getUserDetails(user_id, None)
             if userDetails and user_id == userDetails[0]:
                 conn = sqlite3.connect(dbFile)
                 c = conn.cursor()
@@ -235,13 +220,13 @@ class Edit_detail(Resource):
     def patch(self):
         try:
             data = request.json
-            user_id = data['id']
+            headers = request.headers
+            user_id = headers['id']
             new_firstName = data.get('firstName')
             new_lastName = data.get('lastName')
             new_skills = data.get('skills')
 
-            userDetails = getUserDetails(user_id)
-
+            userDetails = getUserDetails(user_id, None)
             if userDetails and user_id == userDetails[0]:
                 update_fields = {}
                 if new_firstName:
@@ -249,8 +234,7 @@ class Edit_detail(Resource):
                 if new_lastName:
                     update_fields['lastName'] = new_lastName
                 if new_skills is not None:
-                    update_fields['skills'] = json.dumps(new_skills)
-
+                    update_fields['skills'] = new_skills
                 if update_fields:
                     update_query = "UPDATE accounts SET " + ", ".join(f"{key} = ?" for key in update_fields.keys()) + " WHERE id = ?"
                     update_values = list(update_fields.values()) + [user_id]

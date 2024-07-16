@@ -52,31 +52,33 @@ print('\n')
 
 
 #Edit_skills_add
-Edit_skills_data = {
+Edit_detail_data = {
     'id': userId,
+    "firstName": "Jack",
+    "lastName": "Black",
     'skills': "Python,Flask",
-    'action': "add"
 }
 # Skills: []  -> skills: [Python, Flask]
-response1 = requests.put(f"{base_url}/Edit_skills", json=Edit_skills_data)
+response1 = requests.patch(f"{base_url}/Edit_detail", json=Edit_detail_data)
 print(f"***REGISTER RESPONSE***:{'200 - SUCCESS' if response1.status_code == 200 else 'FAIL - SOMETHING WENT WRONG!'}")
-print("Response JSON(Edit_skille):")
+print("Response JSON(Edit_detail):")
 print(response1.json())
 assert response1.status_code == 200
 print('\n')
 
 #Edit_skills_remove
-Edit_skills_remove_data = {
+Edit_detail_2_data = {
     'id': userId,
-    'skills': "Flask",
-    'action': "remove"
+    "firstName": "John",
+    "lastName": "Doe",
+    'skills': "Python",
 }
 
 # skills:[Python, Flask] -> skills: [Python]
 
-response2 = requests.put(f"{base_url}/Edit_skills", json=Edit_skills_remove_data)
+response2 = requests.patch(f"{base_url}/Edit_detail", json=Edit_detail_2_data)
 print(f"***REGISTER RESPONSE***:{'200 - SUCCESS' if response2.status_code == 200 else 'FAIL - SOMETHING WENT WRONG!'}")
-print("Response JSON(Edit_skille):")
+print("Response JSON(Edit_detail):")
 print(response2.json())
 assert response2.status_code == 200
 print('\n')

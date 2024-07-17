@@ -22,7 +22,7 @@ dbFile = "accounts.db"
 
 # DATABASE
 def createDatabase(dbFile):
-   if not os.path.exists(dbFile):
+   if os.path.exists(dbFile):
       return
    try:
       conn = sqlite3.connect(dbFile)
@@ -43,12 +43,15 @@ def createDatabase(dbFile):
       if conn:
          conn.close()
 
-def getUserDetails(id):
+def getUserDetails(id, email):
     try:
         print('hererere')
         conn = sqlite3.connect(dbFile)
         c = conn.cursor()
-        c.execute("SELECT * FROM accounts WHERE id = ?", (id,))
+        if id:
+            c.execute("SELECT * FROM accounts WHERE id = ?", (id,))
+        elif email:
+            c.execute("SELECT * FROM accounts WHERE email = ?", (email,))
         userDetails = c.fetchone()  # Fetch single row
         
         if userDetails:
@@ -139,19 +142,29 @@ class Register(Resource):
                 valid = validate_email(email)
                 email = valid.email
             except EmailNotValidError as e:
+                print('Invalid Email')
                 return {"Error": str(e)}, 400
 
             # Check if email already exists
             if emailExists(email):
+                print('Email exists')
                 return {"Error": "Email already exists"}, 400
 
             # Check if passwords match
             if password != confirmPassword:
+                print('Password dont match')
                 return {"Error": "Passwords don't match"}, 400
 
             # Check if password is secure
             if not validate_password(password):
-                return {"Error": "Password is not secure"}, 400
+                print('Password invalid')
+                return {"Error": """
+                        Password is not secure. \n
+                        For a secured password, you must have:\n
+                        - at least 8 characters, \n
+                        - at least 1 lowercase letter,\n
+                        - at least 1 capital letter, and\n
+                        - at least 1 number."""}, 400
 
             
             print('Data received==========')
@@ -185,10 +198,9 @@ class Login(Resource):
     def post(self):
         try:
             data = request.json
-            id = data['id']
             email = data['email']
             password = data['password']
-            userDetails = getUserDetails(id)
+            userDetails = getUserDetails(None, email)
             id = userDetails[0]
             print(userDetails)
 
@@ -223,13 +235,15 @@ class userDetails(Resource):
             print(f'userId: {userId}')
             if userId:
                 print(userId, type(userId))
-                userDetails = getUserDetails(userId)
+                userDetails = getUserDetails(userId, None)
                 if len(userDetails) > 0:
+                    print(userDetails[5], 'skills')
                     return {
                         'id': userDetails[0],
                         'email': userDetails[1],
                         'firstName': userDetails[2],
                         'lastName': userDetails[3],
+                        'password': userDetails[4],
                         'skills': userDetails[5]
                     }, 200
                 else:
@@ -250,7 +264,7 @@ class Logout(Resource):
             print("***" * 5)
             print(data)
             user_id = data['id']
-            userDetails = getUserDetails(user_id)
+            userDetails = getUserDetails(user_id, None)
             if userDetails and user_id == userDetails[0]:
                 conn = sqlite3.connect(dbFile)
                 c = conn.cursor()
@@ -273,12 +287,17 @@ class Edit_detail(Resource):
     def patch(self):
         try:
             data = request.json
-            user_id = data['id']
+            headers = request.headers
+            user_id = headers['id']
+            print('new')
+            print(headers)
+            new_password = headers['password']
+            print('pass')
             new_firstName = data.get('firstName')
             new_lastName = data.get('lastName')
             new_skills = data.get('skills')
 
-            userDetails = getUserDetails(user_id)
+            userDetails = getUserDetails(user_id, None)
 
             if userDetails and user_id == userDetails[0]:
                 update_fields = {}
@@ -287,9 +306,13 @@ class Edit_detail(Resource):
                 if new_lastName:
                     update_fields['lastName'] = new_lastName
                 if new_skills is not None:
-                    update_fields['skills'] = json.dumps(new_skills)
+                    update_fields['skills'] = new_skills
+                if new_password:
+                    update_fields['password'] = new_password
 
+                print('PASS')
                 if update_fields:
+                    print('PASS2')
                     update_query = "UPDATE accounts SET " + ", ".join(f"{key} = ?" for key in update_fields.keys()) + " WHERE id = ?"
                     update_values = list(update_fields.values()) + [user_id]
 
@@ -299,14 +322,15 @@ class Edit_detail(Resource):
                     conn.commit()
                     conn.close()
 
-                    return {"message": "Edit successful"}, 200
+                    return {"Success": "Edit successful"}, 200
                 else:
-                    return {"message": "No updates provided"}, 400
+                    return {"Success": "No new updates provided"}, 200
             else:
-                return {"message": "Unauthorized"}, 401
+                return {"Error": "Unauthorized"}, 401
 
         except Exception as e:
-            return {"message": "An error occurred during detail edit", "error": str(e)}, 500
+            return {"Error": "An error occurred during detail edit", "error": str(e)}, 500
+        
 if __name__ == '__main__':
     createDatabase(dbFile)
     app.run(debug=True)

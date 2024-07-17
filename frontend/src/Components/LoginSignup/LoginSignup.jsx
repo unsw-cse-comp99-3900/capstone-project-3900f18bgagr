@@ -20,34 +20,6 @@ const LoginSignup = (props) => {
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState("");
 
-  // useEffect(() => {
-  //   sessionToken = localStorage.getItem("token")
-  // }, [])
-
-  // const login = async () => {
-  //   const response = await fetch("http://localhost:5000/user/auth/login", {
-  //     method: "POST",
-  //     body: JSON.stringify({
-  //       loginEmail,
-  //       loginPassword,
-  //     }),
-  //     headers: {
-  //       "Content-type": "application/json",
-  //     },
-  //   });
-  //   const data = await response.json();
-  //   if (data.error) {
-  //     alert(data.error);
-  //   } else if (data.token) {
-  //     localStorage.setItem("token", data.token);
-  //     setToken(() => data.token);
-  //     localStorage.setItem("user", loginEmail);
-  //     navigate("/");
-  //     console.log(token)
-  //     console.log(loginEmail)
-  //   }
-  // };
-
   const signUp = async () => {
     const response = await fetch("http://localhost:5000/register", {
       method: "POST",
@@ -62,10 +34,10 @@ const LoginSignup = (props) => {
         "Content-type": "application/json",
       },
     });
+    const data = await response.json();
     if (!response.ok) {
-      alert(`Error: Passwords don't match`);
+      alert(data.Error);
     } else {
-      const data = await response.json();
       props.setToken(data.token);
       props.setUserId(data.id);
       localStorage.setItem("token", data.token);
@@ -102,15 +74,8 @@ const LoginSignup = (props) => {
   const handleSubmit = () => {
     if (action == "Login") {
       logIn()
-      // if not registered, display user id or password not found.
     } else if (action == "SignUp"){
-      // console.log(signUpEmail)
-      // console.log(signUpFirstName)
-      // console.log(signUpLastName)
-      // console.log(signUpPassword)
-      // console.log(signUpConfirmPassword)
       signUp()
-      // if already registered, display email already registered and display Lost password?
     }
   }
 

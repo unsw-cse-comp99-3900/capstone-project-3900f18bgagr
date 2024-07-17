@@ -1,13 +1,13 @@
-from flask import Flask, request, send_file
-from flask_restx import Resource, Api, fields, inputs, reqparse
+from flask import Flask, request
+from flask_restx import Resource, Api, fields
 import json, os
 from pathlib import Path
 import sqlite3
 import uuid
 import secrets
-from flask import Flask
 from flask_cors import CORS
-
+from email_validator import validate_email, EmailNotValidError
+import re
 
 app = Flask(__name__)
 api = Api(app,
@@ -22,7 +22,7 @@ dbFile = "accounts.db"
 
 # DATABASE
 def createDatabase(dbFile):
-   if not os.path.exists(dbFile):
+   if os.path.exists(dbFile):
       return
    try:
       conn = sqlite3.connect(dbFile)
@@ -43,19 +43,22 @@ def createDatabase(dbFile):
       if conn:
          conn.close()
 
-def getUserDetails(id, email='notProvided'):
+def getUserDetails(id, email):
     try:
+        print('hererere')
         conn = sqlite3.connect(dbFile)
         c = conn.cursor()
         if id:
             c.execute("SELECT * FROM accounts WHERE id = ?", (id,))
-        else:
+        elif email:
             c.execute("SELECT * FROM accounts WHERE email = ?", (email,))
         userDetails = c.fetchone()  # Fetch single row
         
         if userDetails:
+            print("User details found:", userDetails)
             return userDetails
         else:
+            print("User details not found")
             return None  # or handle as needed
         
     except sqlite3.Error as e:
@@ -65,6 +68,30 @@ def getUserDetails(id, email='notProvided'):
     finally:
         if conn:
             conn.close()
+
+def emailExists(email):
+    try:
+        conn = sqlite3.connect(dbFile)
+        c = conn.cursor()
+        c.execute("SELECT * FROM accounts WHERE email = ?", (email,))
+        user = c.fetchone()
+        return user is not None
+    except sqlite3.Error as e:
+        raise
+    finally:
+        if conn:
+            conn.close()
+
+def validate_password(password):  
+    if len(password) < 8:  
+        return False  
+    if not re.search("[a-z]", password):  
+        return False  
+    if not re.search("[A-Z]", password):  
+        return False  
+    if not re.search("[0-9]", password):  
+        return False  
+    return True
 
 # MODELS
 registrationModel = api.model('Register', {
@@ -97,20 +124,50 @@ class Register(Resource):
     @api.response(200, 'OK')
     @api.response(400, 'BAD REQUEST')
     @api.response(403, 'INVALID INPUT')
+    
 
     def post(self):
         try:
             data = request.json
+
+            # Extract data
             email = data['email']
             firstName = data['firstName']
             lastName = data['lastName']
             password = data['password']
             confirmPassword = data['confirmPassword']
-            print('Data received==========')
-            print(password, confirmPassword) 
+
+            # Validate email
+            try:
+                valid = validate_email(email)
+                email = valid.email
+            except EmailNotValidError as e:
+                print('Invalid Email')
+                return {"Error": str(e)}, 400
+
+            # Check if email already exists
+            if emailExists(email):
+                print('Email exists')
+                return {"Error": "Email already exists"}, 400
+
+            # Check if passwords match
             if password != confirmPassword:
-                return {"Error": "Password don't match"}, 400
+                print('Password dont match')
+                return {"Error": "Passwords don't match"}, 400
+
+            # Check if password is secure
+            if not validate_password(password):
+                print('Password invalid')
+                return {"Error": """
+                        Password is not secure. \n
+                        For a secured password, you must have:\n
+                        - at least 8 characters, \n
+                        - at least 1 lowercase letter,\n
+                        - at least 1 capital letter, and\n
+                        - at least 1 number."""}, 400
+
             
+            print('Data received==========')
             #unique user ID
             user_id = str(uuid.uuid4())
             token = secrets.token_hex(16)
@@ -123,11 +180,13 @@ class Register(Resource):
             conn.commit()
             conn.close()
             
+            print(f'returning userId: {user_id}, token: {token}')
             return {"id": user_id,
                     "token": token
                     }, 200
         except Exception as e:
             return {"message": "An error occurred in registration", "error": str(e)}, 400
+
 
 @api.route('/login')
 class Login(Resource):
@@ -143,6 +202,7 @@ class Login(Resource):
             password = data['password']
             userDetails = getUserDetails(None, email)
             id = userDetails[0]
+            print(userDetails)
 
             if userDetails and email == userDetails[1] and password == userDetails[4]:
                 new_token = secrets.token_hex(16)
@@ -172,18 +232,22 @@ class userDetails(Resource):
             data = request.headers
             userId = data['id']
             userToken = data['Authorization']
+            print(f'userId: {userId}')
             if userId:
+                print(userId, type(userId))
                 userDetails = getUserDetails(userId, None)
                 if len(userDetails) > 0:
+                    print(userDetails[5], 'skills')
                     return {
                         'id': userDetails[0],
                         'email': userDetails[1],
                         'firstName': userDetails[2],
                         'lastName': userDetails[3],
+                        'password': userDetails[4],
                         'skills': userDetails[5]
                     }, 200
                 else:
-                    print("User Details not found - /userDetails")
+                    print("User Details not found")
             else:
                 print('No user id provided: User id = ', userId)
         except Exception as e:
@@ -191,11 +255,14 @@ class userDetails(Resource):
 
 @api.route('/logout')
 class Logout(Resource):
+    # @api.expect(logout_model)
     @api.response(200, 'Logout successful')
     @api.response(401, 'Logout fail')
     def post(self):
         try:
             data = request.json
+            print("***" * 5)
+            print(data)
             user_id = data['id']
             userDetails = getUserDetails(user_id, None)
             if userDetails and user_id == userDetails[0]:
@@ -222,11 +289,16 @@ class Edit_detail(Resource):
             data = request.json
             headers = request.headers
             user_id = headers['id']
+            print('new')
+            print(headers)
+            new_password = headers['password']
+            print('pass')
             new_firstName = data.get('firstName')
             new_lastName = data.get('lastName')
             new_skills = data.get('skills')
 
             userDetails = getUserDetails(user_id, None)
+
             if userDetails and user_id == userDetails[0]:
                 update_fields = {}
                 if new_firstName:
@@ -235,7 +307,12 @@ class Edit_detail(Resource):
                     update_fields['lastName'] = new_lastName
                 if new_skills is not None:
                     update_fields['skills'] = new_skills
+                if new_password:
+                    update_fields['password'] = new_password
+
+                print('PASS')
                 if update_fields:
+                    print('PASS2')
                     update_query = "UPDATE accounts SET " + ", ".join(f"{key} = ?" for key in update_fields.keys()) + " WHERE id = ?"
                     update_values = list(update_fields.values()) + [user_id]
 
@@ -245,14 +322,15 @@ class Edit_detail(Resource):
                     conn.commit()
                     conn.close()
 
-                    return {"message": "Edit successful"}, 200
+                    return {"Success": "Edit successful"}, 200
                 else:
-                    return {"message": "No updates provided"}, 400
+                    return {"Success": "No new updates provided"}, 200
             else:
-                return {"message": "Unauthorized"}, 401
+                return {"Error": "Unauthorized"}, 401
 
         except Exception as e:
-            return {"message": "An error occurred during detail edit", "error": str(e)}, 500
+            return {"Error": "An error occurred during detail edit", "error": str(e)}, 500
+        
 if __name__ == '__main__':
     createDatabase(dbFile)
     app.run(debug=True)

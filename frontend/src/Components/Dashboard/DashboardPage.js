@@ -16,6 +16,7 @@ const DashboardPage = (props) => {
   const [firstName, setFirstName] = useState("")
   const [lastName, setLastName] = useState("")
   const [userSkills, setUserSkills] = useState([])
+  const [password, setUserPassword] = useState("")
 
   const getUserDetails = async () => {
     // alert('here')
@@ -41,7 +42,10 @@ const DashboardPage = (props) => {
         if (data.email !== null) {
           setEmail(data.email);
         }
-        if (data.skills !== null) {
+        if (data.password !== null) {
+          setUserPassword(data.password);
+        }
+        if (data.skills.trim().length > 0) {
           const parsedSkills = data.skills.split(',').map(skill => ({
             title: skill.trim()
           }));
@@ -70,7 +74,7 @@ const DashboardPage = (props) => {
           {email && firstName && lastName ? 
             <>
               <Grid item xs={12} md={8}>
-                <Profile firstName={firstName} lastName={lastName} email={email} userSkills={userSkills} setUserSkills={setUserSkills} userId={props.userId}/>
+                <Profile password={password} setUserPassword={setUserPassword} firstName={firstName} setFirstName={setFirstName} lastName={lastName} setLastName={setLastName} email={email} setEmail={setEmail} userSkills={userSkills} setUserSkills={setUserSkills} userId={props.userId}/>
               </Grid>
               <Grid item xs={12} md={4}>
                 <CareerAdviceLinks />

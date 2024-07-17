@@ -1,13 +1,13 @@
-from flask import Flask, request, send_file
-from flask_restx import Resource, Api, fields, inputs, reqparse
+from flask import Flask, request
+from flask_restx import Resource, Api, fields
 import json, os
 from pathlib import Path
 import sqlite3
 import uuid
 import secrets
-from flask import Flask
 from flask_cors import CORS
-
+from email_validator import validate_email, EmailNotValidError
+import re
 
 app = Flask(__name__)
 api = Api(app,
@@ -66,6 +66,30 @@ def getUserDetails(id):
         if conn:
             conn.close()
 
+def emailExists(email):
+    try:
+        conn = sqlite3.connect(dbFile)
+        c = conn.cursor()
+        c.execute("SELECT * FROM accounts WHERE email = ?", (email,))
+        user = c.fetchone()
+        return user is not None
+    except sqlite3.Error as e:
+        raise
+    finally:
+        if conn:
+            conn.close()
+
+def validate_password(password):  
+    if len(password) < 8:  
+        return False  
+    if not re.search("[a-z]", password):  
+        return False  
+    if not re.search("[A-Z]", password):  
+        return False  
+    if not re.search("[0-9]", password):  
+        return False  
+    return True
+
 # MODELS
 registrationModel = api.model('Register', {
     "email": fields.String,
@@ -97,22 +121,38 @@ class Register(Resource):
     @api.response(200, 'OK')
     @api.response(400, 'BAD REQUEST')
     @api.response(403, 'INVALID INPUT')
+    
 
     def post(self):
         try:
-            print('Someone trying to register ...')
             data = request.json
 
-            # add to database
+            # Extract data
             email = data['email']
             firstName = data['firstName']
             lastName = data['lastName']
             password = data['password']
             confirmPassword = data['confirmPassword']
-            print('Data received==========')
-            print(password, confirmPassword) 
+
+            # Validate email
+            try:
+                valid = validate_email(email)
+                email = valid.email
+            except EmailNotValidError as e:
+                return {"Error": str(e)}, 400
+
+            # Check if email already exists
+            if emailExists(email):
+                return {"Error": "Email already exists"}, 400
+
+            # Check if passwords match
             if password != confirmPassword:
-                return {"Error": "Password don't match"}, 400
+                return {"Error": "Passwords don't match"}, 400
+
+            # Check if password is secure
+            if not validate_password(password):
+                return {"Error": "Password is not secure"}, 400
+
             
             print('Data received==========')
             #unique user ID
@@ -133,6 +173,7 @@ class Register(Resource):
                     }, 200
         except Exception as e:
             return {"message": "An error occurred in registration", "error": str(e)}, 400
+
 
 @api.route('/login')
 class Login(Resource):

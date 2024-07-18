@@ -292,6 +292,53 @@ class Edit_detail(Resource):
     @api.response(200, 'Edit successful')
     @api.response(401, 'Edit failed')
     
+    
+    def patch(self):
+        try:
+            data = request.json
+            headers = request.headers
+            user_id = headers['id']
+            print('new')
+            print(headers)
+            new_password = headers['password']
+            print('pass')
+            new_firstName = data.get('firstName')
+            new_lastName = data.get('lastName')
+            new_skills = data.get('skills')
+
+            userDetails = getUserDetails(user_id, None)
+
+            if userDetails and user_id == userDetails[0]:
+                update_fields = {}
+                if new_firstName:
+                    update_fields['firstName'] = new_firstName
+                if new_lastName:
+                    update_fields['lastName'] = new_lastName
+                if new_skills is not None:
+                    update_fields['skills'] = new_skills
+                if new_password:
+                    update_fields['password'] = new_password
+
+                print('PASS')
+                if update_fields:
+                    print('PASS2')
+                    update_query = "UPDATE accounts SET " + ", ".join(f"{key} = ?" for key in update_fields.keys()) + " WHERE id = ?"
+                    update_values = list(update_fields.values()) + [user_id]
+
+                    conn = sqlite3.connect(dbFile)
+                    c = conn.cursor()
+                    c.execute(update_query, update_values)
+                    conn.commit()
+                    conn.close()
+
+                    return {"Success": "Edit successful"}, 200
+                else:
+                    return {"Success": "No new updates provided"}, 200
+            else:
+                return {"Error": "Unauthorized"}, 401
+
+        except Exception as e:
+            return {"Error": "An error occurred during detail edit", "error": str(e)}, 500
 
 job_skills_path = os.path.join(os.path.dirname(__file__), 'job_skills.csv')
 linkedin_job_postings_path = os.path.join(os.path.dirname(__file__), 'linkedin_job_postings.csv')
@@ -513,52 +560,7 @@ class JobTypes(Resource):
         return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'job_types.png'), "rb").read())}
 
 
-    def patch(self):
-        try:
-            data = request.json
-            headers = request.headers
-            user_id = headers['id']
-            print('new')
-            print(headers)
-            new_password = headers['password']
-            print('pass')
-            new_firstName = data.get('firstName')
-            new_lastName = data.get('lastName')
-            new_skills = data.get('skills')
 
-            userDetails = getUserDetails(user_id, None)
-
-            if userDetails and user_id == userDetails[0]:
-                update_fields = {}
-                if new_firstName:
-                    update_fields['firstName'] = new_firstName
-                if new_lastName:
-                    update_fields['lastName'] = new_lastName
-                if new_skills is not None:
-                    update_fields['skills'] = new_skills
-                if new_password:
-                    update_fields['password'] = new_password
-
-                print('PASS')
-                if update_fields:
-                    print('PASS2')
-                    update_query = "UPDATE accounts SET " + ", ".join(f"{key} = ?" for key in update_fields.keys()) + " WHERE id = ?"
-                    update_values = list(update_fields.values()) + [user_id]
-
-                    conn = sqlite3.connect(dbFile)
-                    c = conn.cursor()
-                    c.execute(update_query, update_values)
-                    conn.commit()
-                    conn.close()
-
-                    return {"Success": "Edit successful"}, 200
-                else:
-                    return {"Success": "No new updates provided"}, 200
-            else:
-                return {"Error": "Unauthorized"}, 401
-
-        except Exception as e:
-            return {"Error": "An error occurred during detail edit", "error": str(e)}, 500
         
 if __name__ == '__main__':
     createDatabase(dbFile)

@@ -1,0 +1,8 @@
+scikit-learn
+seaborn
+matplotlib
+pandas
+flask
+python3
+requests
+email_validator

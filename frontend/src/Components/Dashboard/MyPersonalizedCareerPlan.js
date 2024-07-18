@@ -11,7 +11,7 @@ const MyPersonalizedCareerPlan = () => {
 
   return (
     <Paper style={{ padding: 16 }}>
-      <Typography variant="h6" gutterBottom>
+      <Typography variant="h5" gutterBottom>
         My Personalized Career Plan
       </Typography>
       <Button variant="contained" color="primary" style={{backgroundColor: '#3c009d'}} onClick={handlePlanClick}>

@@ -9,6 +9,7 @@ import Footer from '../Footer/Footer'
 import Profile from '../Profile/Profile'
 import Skills from '../Skills/Skills'
 import { useNavigate } from 'react-router-dom';
+import ImageComponent from './ImageComponent';
 
 const DashboardPage = (props) => {
   const navigate = useNavigate()
@@ -96,6 +97,15 @@ const DashboardPage = (props) => {
           </Grid>
         </Grid>
       </div>
+      <div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
+                <ImageComponent endpoint="top_jobs_us" altText="Top 10 US Jobs" />
+                <ImageComponent endpoint="top_jobs_uk" altText="Top 10 UK Jobs" />
+                <ImageComponent endpoint="top_jobs_aus" altText="Top 10 AUS Jobs" />
+                <ImageComponent endpoint="process_duration" altText="Process Duration" />
+                <ImageComponent endpoint="job_types" altText="Job Types" />
+            </div>
+        </div>
       <div style={{height: '10%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
         <Footer />
       </div>

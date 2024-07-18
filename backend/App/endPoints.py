@@ -443,7 +443,6 @@ fig.gca().add_artist(centre_circle)
 
 ax.axis('equal')  
 
-
 labels = [f'{i} - {j} ({j/counts2.sum()*100:.1f}%)' for i,j in zip(counts2.index, counts2)]
 plt.legend(wedges, labels,
           title="Job Types",
@@ -452,6 +451,7 @@ plt.legend(wedges, labels,
 
 plt.title("Distribution of Job Types in LinkedIn Postings")
 # plt.show()
+plt.tight_layout()
 plt.savefig(os.path.join(os.path.dirname(__file__),'figs', 'job_types.png'))
 
 df = linkedin_job_posting
@@ -560,8 +560,6 @@ class JobTypes(Resource):
         return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'job_types.png'), "rb").read())}
 
 
-
-        
 if __name__ == '__main__':
     createDatabase(dbFile)
     app.run(debug=True)

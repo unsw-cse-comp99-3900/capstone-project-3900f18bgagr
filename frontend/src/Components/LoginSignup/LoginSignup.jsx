@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import './LoginSignup.css'
 import { AppBar, Toolbar, Typography, IconButton, Button } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 
 import user_icon from '../Assets/person.png'
 import email_icon from '../Assets/email.png'
@@ -19,6 +21,9 @@ const LoginSignup = (props) => {
   const [signUpLastName, setSignUpLastName] = useState("");
   const [signUpPassword, setSignUpPassword] = useState("");
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState("");
+  const [alertError, setAlertError] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [errorHeader, setErrorHeader] = useState("")
 
   const signUp = async () => {
     const response = await fetch("http://localhost:5000/register", {
@@ -36,7 +41,8 @@ const LoginSignup = (props) => {
     });
     const data = await response.json();
     if (!response.ok) {
-      alert(data.Error);
+      setErrorMessage(data.Error)
+      alertErrorFn()
     } else {
       props.setToken(data.token);
       props.setUserId(data.id);
@@ -45,6 +51,29 @@ const LoginSignup = (props) => {
       navigate("/");
     }
   };
+
+  const validatePassword = (password) => {
+    if (password.length < 8) {
+      return false;
+    }
+    if (!/[a-z]/.test(password)) {
+      return false;
+    }
+    if (!/[A-Z]/.test(password)) {
+      return false;
+    }
+    if (!/[0-9]/.test(password)) {
+      return false;
+    }
+    return true;
+  }
+
+  const alertErrorFn = () => {
+    setAlertError(true)
+    // setTimeout(() => {
+    //   setAlertError(false)
+    // }, 3000)
+  }
 
   const logIn = async () => {
     const response = await fetch("http://localhost:5000/login", {
@@ -57,10 +86,13 @@ const LoginSignup = (props) => {
         "Content-type": "application/json",
       },
     });
+    
+    const data = await response.json()
     if (!response.ok) {
-      alert(`Error: Account not found`);
+      setErrorMessage(data.Error)
+      alertErrorFn()
+      // alert(`Error: Account not found`);
     } else {
-      const data = await response.json();
       props.setToken(data.token);
       props.setUserId(data.id);
       localStorage.setItem("token", data.token);
@@ -85,6 +117,22 @@ const LoginSignup = (props) => {
         <NavigationBar homeButton={true}/>
       </div>
       <div className='container' stlye={{height:'80%'}}>
+      {
+        alertError && 
+        action === "Login" &&
+        <Alert severity="error">
+        <AlertTitle><strong>Login Error</strong></AlertTitle>
+        {errorMessage}
+      </Alert>
+      }
+      {
+        alertError && 
+        action === "SignUp" &&
+        <Alert severity="error">
+        <AlertTitle><strong>Registration Error</strong></AlertTitle>
+          {errorMessage}
+      </Alert>
+      }
       <div className="header">
         <div className="text">{action}</div>
         <div className="underline"></div>
@@ -160,8 +208,8 @@ const LoginSignup = (props) => {
       </div>
       {action === "SignUp" ? <div></div> : <div className="forgot-password">Lost Password? <span onClick={() => navigate('/verifyCode')}>Click Here!</span></div>}
       <div className="submit-container">
-        <div className={action === "Login" ? "submit gray scale":"submit"} onClick={() => {setAction("SignUp")}}>Sign Up</div>
-        <div className={action === "SignUp" ? "submit gray scale":"submit"} onClick={() => {setAction("Login")}}>Login</div> 
+        <div className={action === "Login" ? "submit gray scale":"submit"} onClick={() => {setAction("SignUp"); setAlertError(false)}}>Sign Up</div>
+        <div className={action === "SignUp" ? "submit gray scale":"submit"} onClick={() => {setAction("Login"); setAlertError(false)}}>Login</div> 
       </div>
       <div className="scale" style={{display: 'flex', justifyContent: 'center'}}>
           <Button variant='contained' onClick={handleSubmit} className="submit gray scale" style={{background: '#3c009d', width: '100%', padding: '10px', width: '50%', scale: '1.2', borderRadius: '70px'}}>

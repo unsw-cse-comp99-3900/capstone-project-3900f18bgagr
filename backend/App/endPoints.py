@@ -167,7 +167,7 @@ class Register(Resource):
             if not validate_password(password):
                 print('Password invalid')
                 return {"Error": """
-                        Password is not secure. \n
+                        Password is not secure. 
                         For a secured password, you must have:\n
                         - at least 8 characters, \n
                         - at least 1 lowercase letter,\n
@@ -190,10 +190,10 @@ class Register(Resource):
             
             print(f'returning userId: {user_id}, token: {token}')
             return {"id": user_id,
-                    "token": token
+                    "token": token,
                     }, 200
         except Exception as e:
-            return {"message": "An error occurred in registration", "error": str(e)}, 400
+            return {"Error": str(e)}, 400
 
 
 @api.route('/login')
@@ -224,10 +224,10 @@ class Login(Resource):
                 return {"id": id,
                         "token": new_token}, 200
             else:
-                return {"message": "Unauthorized"}, 401
+                return {"Error": "We didn't recognise the username or password you entered. Please try again."}, 401
 
         except Exception as e:
-            return {"message": "An error occurred in login", "error": str(e)}, 500
+            return {"Error": "We didn't recognise the username or password you entered. Please try again.", "error": str(e)}, 500
         
 
 @api.route('/userDetails')
@@ -259,7 +259,7 @@ class userDetails(Resource):
             else:
                 print('No user id provided: User id = ', userId)
         except Exception as e:
-            return {"message": "An error occurred in logout", "error": str(e)}, 500
+            return {"message": "An error occurred in getting user details", "error": str(e)}, 500
 
 @api.route('/logout')
 class Logout(Resource):
@@ -331,9 +331,9 @@ class Edit_detail(Resource):
                     conn.commit()
                     conn.close()
 
-                    return {"Success": "Edit successful"}, 200
+                    return {"message": "successfully changed."}, 200
                 else:
-                    return {"Success": "No new updates provided"}, 200
+                    return {"message": "No new updates provided."}, 200
             else:
                 return {"Error": "Unauthorized"}, 401
 

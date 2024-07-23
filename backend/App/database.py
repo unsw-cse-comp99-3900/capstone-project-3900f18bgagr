@@ -55,6 +55,8 @@ conn = sqlite3.connect("Career_path.db")
 # Save the dataframe to a table in the SQLite database
 df.to_sql('Career_path', conn, if_exists='replace', index=False)
 
+conn.close()
+
 def generateDummyData(df):
     sample = df.sample(n=1)
     conn = sqlite3.connect("career_path.db")
@@ -70,6 +72,3 @@ def startGeneratingDummyData(interval=600):
     thread = threading.Thread(target=generate)
     thread.daemon = True
     thread.start()
-
-# Close the database connection
-conn.close()

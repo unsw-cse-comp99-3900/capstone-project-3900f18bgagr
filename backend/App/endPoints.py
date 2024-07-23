@@ -29,7 +29,6 @@ CORS(app)
 dbFile = "accounts.db"
 
 # DATABASE
-# DATABASE
 def createDatabase(dbFile):
    if os.path.exists(dbFile):
       return

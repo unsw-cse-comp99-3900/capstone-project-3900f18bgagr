@@ -10,6 +10,8 @@ import Profile from '../Profile/Profile'
 import Skills from '../Skills/Skills'
 import { useNavigate } from 'react-router-dom';
 import ImageComponent from './ImageComponent';
+import Box from '@mui/material/Box';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const DashboardPage = (props) => {
   const navigate = useNavigate()
@@ -72,26 +74,17 @@ const DashboardPage = (props) => {
       </div>
       <div style={{ padding: "20px", height: '80%'}}>
         <Grid container spacing={3} >
-          {email && firstName && lastName ? 
-            <>
+          {email && firstName && lastName &&
               <Grid item xs={12} md={8}>
                 <Profile password={password} setUserPassword={setUserPassword} firstName={firstName} setFirstName={setFirstName} lastName={lastName} setLastName={setLastName} email={email} setEmail={setEmail} userSkills={userSkills} setUserSkills={setUserSkills} userId={props.userId}/>
               </Grid>
-              <Grid item xs={12} md={4}>
-                <CareerAdviceLinks />
-              </Grid>
-              <Grid item xs={12} md={12}>
-                <ExploreGraduateCareerPaths />
-              </Grid>
-            </> :
-            <>
-              <Grid item xs={12} md={8}>
-                <ExploreGraduateCareerPaths />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <CareerAdviceLinks />
-              </Grid>
-            </>}
+          }
+          <Grid item xs={12} md={4}>
+            <CareerAdviceLinks />
+          </Grid>
+          <Grid item xs={12}>
+            <ExploreGraduateCareerPaths />
+          </Grid>
           <Grid item xs={12}>
             <MyPersonalizedCareerPlan />
           </Grid>

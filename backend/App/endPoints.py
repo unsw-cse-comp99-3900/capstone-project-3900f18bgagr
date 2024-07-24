@@ -16,6 +16,14 @@ import base64
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from flask import Flask, request, jsonify
+from flask_restx import Api, Resource, fields
+from flask_mail import Mail, Message
+from werkzeug.security import generate_password_hash, check_password_hash
+from random import choice
+from string import ascii_letters, digits
+import os, re, sqlite3
+
 
 app = Flask(__name__)
 api = Api(app,
@@ -25,8 +33,103 @@ api = Api(app,
           )
 CORS(app)
 
+# Configuration for Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'projectbackend1531@gmail.com'
+app.config['MAIL_PASSWORD'] = 'ostecvbxvvtehcle'
+app.config['MAIL_DEFAULT_SENDER'] = 'projectbackend1531@gmail.com'
+
+mail = Mail(app)
+
 # INITIALIZATION
 dbFile = "accounts.db"
+
+def generate_reset_code():
+    return ''.join(choice(ascii_letters + digits) for _ in range(20))
+
+def updateDb(table, fields, values, condition_field, condition_value):
+    """
+    Update records in the specified table based on fields and values provided.
+    
+    :param table: The table to update.
+    :param fields: A list of column names to be updated.
+    :param values: A list of values to set for the corresponding columns.
+    :param condition_field: The column used for the condition (e.g., 'email').
+    :param condition_value: The value for the condition field (e.g., 'user@gmail.com').
+    """
+    if len(fields) != len(values):
+        raise ValueError("The number of fields and values must be the same.")
+    
+    # Create the SQL statement
+    set_clause = ', '.join([f"{field} = ?" for field in fields])
+    sql = f"UPDATE {table} SET {set_clause} WHERE {condition_field} = ?"
+    
+    # Combine values and condition_value into a single list
+    params = values + [condition_value]
+    
+    # Connect to the database
+    conn = sqlite3.connect('accounts.db')
+    c = conn.cursor()
+    
+    # Execute the update statement
+    c.execute(sql, params)
+    
+    # Commit changes and close the connection
+    conn.commit()
+    conn.close()
+
+@api.route('/request-reset')
+class RequestReset(Resource):
+    def post(self):
+        print('here')
+        data = request.json
+        print(f'Data: {data}')
+        userEmail = data['email']
+        if userEmail:
+            userEmail = str(userEmail.lower())
+        userDetails = getUserDetails(id=None, email=userEmail)
+        if userDetails:
+            newResetCode = generate_reset_code()
+            updateDb('accounts', ['resetCode'], [newResetCode], 'email', userEmail)
+            send_reset_email(userEmail, newResetCode)
+            return {'message': 'Reset code sent to email'}, 200
+        else:
+            return {'message': 'Email not found'}, 400
+
+@api.route('/reset-password')
+class ResetPassword(Resource):
+    @api.expect(api.model('ResetPassword', {
+        'email': fields.String(required=True, description='Email'),
+        'reset_code': fields.String(required=True, description='Reset code'),
+        'new_password': fields.String(required=True, description='New password')
+    }))
+    def patch(self):
+        data = request.json
+        userEmail = data['email']
+        resetCode = data['reset_code']
+        newPassword = data['new_password']
+        if userEmail:
+            userEmail = str(userEmail.lower())
+        userDetails = getUserDetails(id=None, email=userEmail)
+        print(userDetails)
+        if not userDetails:
+            return {'message': 'Invalid email. Make sure the email exists.'}, 400
+        if resetCode != userDetails[7]:
+            return {'message': 'Invalid reset code'}, 400
+        if not validate_password(newPassword):
+            return {'message': 'New password is not secure.'}, 400
+        
+        updateDb('accounts', ['password'], [newPassword], 'email', userEmail)
+        return {'message': 'Password reset successfully'}, 200
+
+def send_reset_email(email, reset_code):
+    msg = Message('Password Reset Code', recipients=[email])
+    msg.body = f'Your reset code is: {reset_code}'
+    with app.app_context():
+        mail.send(msg)
 
 # DATABASE
 def createDatabase(dbFile):
@@ -35,15 +138,18 @@ def createDatabase(dbFile):
    try:
       conn = sqlite3.connect(dbFile)
       c = conn.cursor()
-      c.execute('''DROP TABLE IF EXISTS accounts''')
-      c.execute('''CREATE TABLE accounts
+      c.execute('DROP TABLE IF EXISTS accounts')
+      c.execute('''
+                CREATE TABLE accounts
                (id TEXT PRIMARY KEY,
                 email TEXT,
                 firstName TEXT,
                 lastName TEXT,
                 password TEXT,
                 skills TEXT,
-                token TEXT)''')
+                token TEXT,
+                resetCode TEXT)
+                ''')
       conn.commit()
    except sqlite3.Error as e:
       api.abort(503)
@@ -132,7 +238,6 @@ class Register(Resource):
     @api.response(200, 'OK')
     @api.response(400, 'BAD REQUEST')
     @api.response(403, 'INVALID INPUT')
-    
 
     def post(self):
         try:
@@ -152,7 +257,8 @@ class Register(Resource):
             except EmailNotValidError as e:
                 print('Invalid Email')
                 return {"Error": str(e)}, 400
-
+            
+            email = str(email.lower())
             # Check if email already exists
             if emailExists(email):
                 print('Email exists')
@@ -208,10 +314,11 @@ class Login(Resource):
             data = request.json
             email = data['email']
             password = data['password']
+            if email:
+                email = str(email.lower())
+            
             userDetails = getUserDetails(None, email)
             id = userDetails[0]
-            print(userDetails)
-
             if userDetails and email == userDetails[1] and password == userDetails[4]:
                 new_token = secrets.token_hex(16)
 
@@ -222,7 +329,8 @@ class Login(Resource):
                 conn.close()
 
                 return {"id": id,
-                        "token": new_token}, 200
+                        "token": new_token,
+                        'message': 'Login successful.'}, 200
             else:
                 return {"Error": "We didn't recognise the username or password you entered. Please try again."}, 401
 
@@ -292,16 +400,12 @@ class Edit_detail(Resource):
     @api.response(200, 'Edit successful')
     @api.response(401, 'Edit failed')
     
-    
     def patch(self):
         try:
             data = request.json
             headers = request.headers
             user_id = headers['id']
-            print('new')
-            print(headers)
             new_password = headers['password']
-            print('pass')
             new_firstName = data.get('firstName')
             new_lastName = data.get('lastName')
             new_skills = data.get('skills')

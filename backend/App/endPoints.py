@@ -44,12 +44,20 @@ def createDatabase(dbFile):
                 password TEXT,
                 skills TEXT,
                 token TEXT)''')
+      c.execute('''DROP TABLE IF EXISTS career_path''')
+      c.execute('''CREATE TABLE career_path
+               (job_title TEXT,
+                job_level TEXT,
+                skills TEXT,
+                experience_years INTEGER,
+                experience_role TEXT)''')
       conn.commit()
    except sqlite3.Error as e:
       api.abort(503)
    finally:
       if conn:
          conn.close()
+
 
 def getUserDetails(id, email):
     try:

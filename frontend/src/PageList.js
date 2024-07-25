@@ -11,6 +11,7 @@ import ResetPassword from './Components/ResetPassword/ResetPassword';
 const PageList = () => {
   const [token, setToken] = useState("")
   const [userId, setUserId] = useState("")
+  const [userEmail, setUserEmail] = useState("")
   
   React.useEffect(() => {
     const checktoken = localStorage.getItem("token");
@@ -30,8 +31,8 @@ const PageList = () => {
         <Route path="/CareerPaths" element={<CareerPathsPage token={token} setToken={setToken} userId={userId} setUserId={setUserId} />} />
         <Route path="/CareerPlan" element={<CareerPlanPage token={token} setToken={setToken} userId={userId} setUserId={setUserId} />} />
         <Route path="/loginSignUp" element={<LoginSignUp token={token} setToken={setToken} userId={userId} setUserId={setUserId} />} />
-        <Route path="/verifyCode" element={<VerifyCode token={token} setToken={setToken} userId={userId} setUserId={setUserId} />} />
-        <Route path="/resetPassword" element={<ResetPassword token={token} setToken={setToken} userId={userId} setUserId={setUserId} />} />
+        <Route path="/verifyCode" element={<VerifyCode token={token} setToken={setToken} userId={userId} setUserId={setUserId} setUserEmail={setUserEmail} />} />
+        <Route path="/resetPassword" element={<ResetPassword token={token} setToken={setToken} userId={userId} setUserId={setUserId} userEmail={userEmail} />} />
       </Routes>
     </div>
   );

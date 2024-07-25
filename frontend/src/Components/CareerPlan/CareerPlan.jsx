@@ -10,7 +10,7 @@ import { ContinuePanel } from "./ContinuePanel";
 import CareerPlanSankey from "./Sankey";
 import Footer from '../Footer/Footer'
 
-const CareerPlan = () => {
+const CareerPlan = (props) => {
   const roles = [
     "Software Engineer",
     "Data Scientist",

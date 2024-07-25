@@ -16,6 +16,14 @@ import base64
 import matplotlib.pyplot as plt
 import seaborn as sns
 
+from flask import Flask, request, jsonify
+from flask_restx import Api, Resource, fields
+from flask_mail import Mail, Message
+from werkzeug.security import generate_password_hash, check_password_hash
+from random import choice
+from string import ascii_letters, digits
+import os, re, sqlite3
+
 
 app = Flask(__name__)
 api = Api(app,
@@ -25,8 +33,103 @@ api = Api(app,
           )
 CORS(app)
 
+# Configuration for Flask-Mail
+app.config['MAIL_SERVER'] = 'smtp.gmail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False
+app.config['MAIL_USERNAME'] = 'projectbackend1531@gmail.com'
+app.config['MAIL_PASSWORD'] = 'ostecvbxvvtehcle'
+app.config['MAIL_DEFAULT_SENDER'] = 'projectbackend1531@gmail.com'
+
+mail = Mail(app)
+
 # INITIALIZATION
 dbFile = "accounts.db"
+
+def generate_reset_code():
+    return ''.join(choice(ascii_letters + digits) for _ in range(20))
+
+def updateDb(table, fields, values, condition_field, condition_value):
+    """
+    Update records in the specified table based on fields and values provided.
+    
+    :param table: The table to update.
+    :param fields: A list of column names to be updated.
+    :param values: A list of values to set for the corresponding columns.
+    :param condition_field: The column used for the condition (e.g., 'email').
+    :param condition_value: The value for the condition field (e.g., 'user@gmail.com').
+    """
+    if len(fields) != len(values):
+        raise ValueError("The number of fields and values must be the same.")
+    
+    # Create the SQL statement
+    set_clause = ', '.join([f"{field} = ?" for field in fields])
+    sql = f"UPDATE {table} SET {set_clause} WHERE {condition_field} = ?"
+    
+    # Combine values and condition_value into a single list
+    params = values + [condition_value]
+    
+    # Connect to the database
+    conn = sqlite3.connect('accounts.db')
+    c = conn.cursor()
+    
+    # Execute the update statement
+    c.execute(sql, params)
+    
+    # Commit changes and close the connection
+    conn.commit()
+    conn.close()
+
+@api.route('/request-reset')
+class RequestReset(Resource):
+    def post(self):
+        print('here')
+        data = request.json
+        print(f'Data: {data}')
+        userEmail = data['email']
+        if userEmail:
+            userEmail = str(userEmail.lower())
+        userDetails = getUserDetails(id=None, email=userEmail)
+        if userDetails:
+            newResetCode = generate_reset_code()
+            updateDb('accounts', ['resetCode'], [newResetCode], 'email', userEmail)
+            send_reset_email(userEmail, newResetCode)
+            return {'message': 'Reset code sent to email'}, 200
+        else:
+            return {'message': 'Email not found'}, 400
+
+@api.route('/reset-password')
+class ResetPassword(Resource):
+    @api.expect(api.model('ResetPassword', {
+        'email': fields.String(required=True, description='Email'),
+        'reset_code': fields.String(required=True, description='Reset code'),
+        'new_password': fields.String(required=True, description='New password')
+    }))
+    def patch(self):
+        data = request.json
+        userEmail = data['email']
+        resetCode = data['reset_code']
+        newPassword = data['new_password']
+        if userEmail:
+            userEmail = str(userEmail.lower())
+        userDetails = getUserDetails(id=None, email=userEmail)
+        print(userDetails)
+        if not userDetails:
+            return {'message': 'Invalid email. Make sure the email exists.'}, 400
+        if resetCode != userDetails[7]:
+            return {'message': 'Invalid reset code'}, 400
+        if not validate_password(newPassword):
+            return {'message': 'New password is not secure.'}, 400
+        
+        updateDb('accounts', ['password'], [newPassword], 'email', userEmail)
+        return {'message': 'Password reset successfully'}, 200
+
+def send_reset_email(email, reset_code):
+    msg = Message('Password Reset Code', recipients=[email])
+    msg.body = f'Your reset code is: {reset_code}'
+    with app.app_context():
+        mail.send(msg)
 
 # DATABASE
 def createDatabase(dbFile):
@@ -35,15 +138,18 @@ def createDatabase(dbFile):
    try:
       conn = sqlite3.connect(dbFile)
       c = conn.cursor()
-      c.execute('''DROP TABLE IF EXISTS accounts''')
-      c.execute('''CREATE TABLE accounts
+      c.execute('DROP TABLE IF EXISTS accounts')
+      c.execute('''
+                CREATE TABLE accounts
                (id TEXT PRIMARY KEY,
                 email TEXT,
                 firstName TEXT,
                 lastName TEXT,
                 password TEXT,
                 skills TEXT,
-                token TEXT)''')
+                token TEXT,
+                resetCode TEXT)
+                ''')
       c.execute('''DROP TABLE IF EXISTS career_path''')
       c.execute('''CREATE TABLE career_path
                (job_title TEXT,
@@ -140,7 +246,6 @@ class Register(Resource):
     @api.response(200, 'OK')
     @api.response(400, 'BAD REQUEST')
     @api.response(403, 'INVALID INPUT')
-    
 
     def post(self):
         try:
@@ -160,11 +265,12 @@ class Register(Resource):
             except EmailNotValidError as e:
                 print('Invalid Email')
                 return {"Error": str(e)}, 400
-
+            
+            email = str(email.lower())
             # Check if email already exists
             if emailExists(email):
                 print('Email exists')
-                return {"Error": "Email already exists"}, 400
+                return {"Error": "Email already exists"}, 409
 
             # Check if passwords match
             if password != confirmPassword:
@@ -216,10 +322,11 @@ class Login(Resource):
             data = request.json
             email = data['email']
             password = data['password']
+            if email:
+                email = str(email.lower())
+            
             userDetails = getUserDetails(None, email)
             id = userDetails[0]
-            print(userDetails)
-
             if userDetails and email == userDetails[1] and password == userDetails[4]:
                 new_token = secrets.token_hex(16)
 
@@ -230,7 +337,8 @@ class Login(Resource):
                 conn.close()
 
                 return {"id": id,
-                        "token": new_token}, 200
+                        "token": new_token,
+                        'message': 'Login successful.'}, 200
             else:
                 return {"Error": "We didn't recognise the username or password you entered. Please try again."}, 401
 
@@ -300,16 +408,12 @@ class Edit_detail(Resource):
     @api.response(200, 'Edit successful')
     @api.response(401, 'Edit failed')
     
-    
     def patch(self):
         try:
             data = request.json
             headers = request.headers
             user_id = headers['id']
-            print('new')
-            print(headers)
             new_password = headers['password']
-            print('pass')
             new_firstName = data.get('firstName')
             new_lastName = data.get('lastName')
             new_skills = data.get('skills')
@@ -347,226 +451,6 @@ class Edit_detail(Resource):
 
         except Exception as e:
             return {"Error": "An error occurred during detail edit", "error": str(e)}, 500
-
-job_skills_path = os.path.join(os.path.dirname(__file__), 'job_skills.csv')
-linkedin_job_postings_path = os.path.join(os.path.dirname(__file__), 'linkedin_job_postings.csv')
-
-job_skills = pd.read_csv(job_skills_path)
-linkedin_job_posting  = pd.read_csv(linkedin_job_postings_path)
-
-linkedin_job_posting = pd.merge(linkedin_job_posting, job_skills, on='job_link', how = 'inner')
-linkedin_job_posting = linkedin_job_posting.dropna()
-linkedin_job_posting = linkedin_job_posting.apply(lambda col: col.map(lambda s: s.lower() if isinstance(s, str) else s))
-linkedin_job_posting = linkedin_job_posting.replace({' & ': ' and '}, regex=True)
-
-def itr_skills(row):
-    
-    skills = row['job_skills'].split(', ')
-    skills = [skills for skills in skills if len(skills) >= 3]
-    
-    return skills
-
-linkedin_job_posting['skills'] = linkedin_job_posting.apply(itr_skills, axis=1)# applying function
-
-linkedin_job_posting['skills_count'] = linkedin_job_posting['skills'].apply(len)
-
-linkedin_job_posting.drop(['job_skills'], axis=1, inplace=True)
-linkedin_job_posting = linkedin_job_posting.rename(columns={'skills': 'job_skills'})
-linkedin_job_posting['search_country'] = linkedin_job_posting['search_country'].astype('category')
-linkedin_job_posting['search_country'].cat.categories
-
-
-us_jobs = linkedin_job_posting[linkedin_job_posting['search_country'] == 'united states'] #filtering the linkedin_job_posting DataFrame where the ‘search_country’ column is ‘united states’.
-job_counts = us_jobs['job_title'].value_counts() #count of each unique job title in the us_jobs DataFrame.
-top_10_us_jobs = job_counts.head(10) # new data frame, contains top 10 job titles in US
-
-
-if not os.path.exists(os.path.join(os.path.dirname(__file__),'figs')):
-    os.makedirs(os.path.join(os.path.dirname(__file__),'figs'))
-
-#creating a horizontal bar graph 
-top_10_us_jobs.plot(kind='barh', figsize=(10, 6), color='blue')
-plt.xlabel('Number of Job Postings')
-plt.ylabel('Job Title')
-plt.title('Top 10 Most Demanded Job Titles in the United States')
-plt.gca().invert_yaxis()  
-# plt.show()
-plt.savefig(os.path.join(os.path.dirname(__file__),'figs', 'top_10_us_jobs.png'))
-
-uk_jobs = linkedin_job_posting[linkedin_job_posting['search_country'] == 'united kingdom']
-job_counts2 = uk_jobs['job_title'].value_counts()
-top_10_uk_jobs = job_counts2.head(10)
-
-top_10_uk_jobs.plot(kind='barh', figsize=(10, 6), color='green')
-plt.xlabel('Number of Job Postings')
-plt.ylabel('Job Title')
-plt.title('Top 10 Most Demanded Job Titles in the United Kingdom')
-plt.gca().invert_yaxis()  
-# plt.show()
-plt.savefig(os.path.join(os.path.dirname(__file__),'figs', 'top_10_uk_jobs.png'))
-
-aus_jobs = linkedin_job_posting[linkedin_job_posting['search_country'] == 'australia']
-job_counts3 = uk_jobs['job_title'].value_counts()
-top_10_aus_jobs = job_counts3.head(10)
-
-top_10_aus_jobs.plot(kind='barh', figsize=(10, 6), color='red')
-plt.xlabel('Number of Job Postings')
-plt.ylabel('Job Title')
-plt.title('Top 10 Most Demanded Job Titles in the Australia')
-plt.gca().invert_yaxis()  
-# plt.show()
-plt.savefig(os.path.join(os.path.dirname(__file__),'figs', 'top_10_aus_jobs.png'))
-
-linkedin_job_posting['first_seen'] = pd.to_datetime(linkedin_job_posting['first_seen'])
-linkedin_job_posting['first_seen_date'] = linkedin_job_posting['first_seen'].dt.date
-# Convert to string
-linkedin_job_posting['last_processed_time'] = linkedin_job_posting['last_processed_time'].astype(str)
-# Remove time data
-linkedin_job_posting['last_processed_time'] = linkedin_job_posting['last_processed_time'].str.split(' ').str[0]
-linkedin_job_posting['last_processed_time'] = pd.to_datetime(linkedin_job_posting['last_processed_time'])
-linkedin_job_posting['process_duration'] = (linkedin_job_posting['last_processed_time'] - linkedin_job_posting['first_seen']).dt.days
-sns.set(style="whitegrid")
-
-# Processing Time
-plt.figure(figsize=(10, 6))
-sns.histplot(data=linkedin_job_posting, x='process_duration', binwidth=0.3, color = 'orange')
-plt.title('Distribution of Processing Time')
-plt.xlabel('Processing Time (days)')
-plt.ylabel('Number of Job Postings')
-# plt.show()
-plt.savefig(os.path.join(os.path.dirname(__file__),'figs', 'process_duration.png'))
-
-
-counts2 = linkedin_job_posting['job_type'].value_counts()
-
-
-fig, ax = plt.subplots()
-wedges, _ = ax.pie(counts2, startangle=90, colors=['#40E0D0','#FFD700','#FF6347'])
-
-
-centre_circle = plt.Circle((0,0),0.70,fc='white')
-fig = plt.gcf()
-fig.gca().add_artist(centre_circle)
-
-
-ax.axis('equal')  
-
-labels = [f'{i} - {j} ({j/counts2.sum()*100:.1f}%)' for i,j in zip(counts2.index, counts2)]
-plt.legend(wedges, labels,
-          title="Job Types",
-          loc="center left",
-          bbox_to_anchor=(1, 0, 0.5, 1))
-
-plt.title("Distribution of Job Types in LinkedIn Postings")
-# plt.show()
-plt.tight_layout()
-plt.savefig(os.path.join(os.path.dirname(__file__),'figs', 'job_types.png'))
-
-df = linkedin_job_posting
-
-df['job_skills_str'] = df['job_skills'].apply(lambda x: ' '.join(x))
-subset_df = df.sample(frac=0.01, random_state=1) 
-vectorizer = CountVectorizer()
-
-skills_matrix = vectorizer.fit_transform(subset_df['job_skills_str'])
-
-cosine_sim = cosine_similarity(skills_matrix)
-
-def recommend_jobs(skills):
-    skills_str = ' '.join(skills)
-
-    skills_vec = vectorizer.transform([skills_str])
-
-    sim_scores = cosine_similarity(skills_vec, skills_matrix).flatten()
-
-    indices = sim_scores.argsort()[::-1]
-
-    recommendations = []
-    for idx in indices[:10]:
-        job_skills = subset_df.iloc[idx]['job_skills']
-        skills_ticked = [skill for skill in skills if skill in job_skills]
-        skills_not_met = [skill for skill in job_skills if skill not in skills]
-        recommendations.append({
-            'job_title': subset_df.iloc[idx]['job_title'],
-            'skillsTicked': skills_ticked,
-            'skillsNotMet': skills_not_met
-        })
-    seen_titles = set()
-    unique_recommendations = []
-    for rec in recommendations:
-        if rec['job_title'] not in seen_titles:
-            seen_titles.add(rec['job_title'])
-            unique_recommendations.append(rec)
-
-    return unique_recommendations
-
-# recommendations = recommend_jobs(['python', 'flask', 'docker'])
-# for rec in recommendations:
-#     print(rec)
-
-    # MODELS
-skills_model = api.model('Skills', {
-    'skills': fields.List(fields.String, required=True, description='List of skills')
-})
-
-@api.route('/recommend')
-class Recommend(Resource):
-    @api.expect(skills_model)
-    @api.response(200, 'OK')
-    @api.response(400, 'BAD REQUEST')
-    def post(self):
-        try:
-            data = request.json
-            skills = data.get('skills')
-            if not skills:
-                return {"error": "No skills provided"}, 400
-            recommendations = recommend_jobs(skills)
-            return jsonify(recommendations)
-        except Exception as e:
-            return {"message": "An error occurred in generating recommendations", "error": str(e)}, 500
-
-
-
-
-def encode_binary_to_base64(binary):
-    return "data:image/png;base64,"+base64.b64encode(binary).decode('utf-8')
-
-# return each image saved as a base64 string with png format on the front so that the image can be displayed in the browser.
-@api.route('/top_jobs_us')
-class TopJobs(Resource):
-    @api.response(200, 'OK')
-    def get(self):
-        # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_us_jobs.png'), "rb").read().encode("base64")}
-        return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_us_jobs.png'), "rb").read())}
-    
-@api.route('/top_jobs_uk')
-class TopJobsUK(Resource):
-    @api.response(200, 'OK')
-    def get(self):
-        # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_uk_jobs.png'), "rb").read().encode("base64")}
-        return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_uk_jobs.png'), "rb").read())}
-    
-@api.route('/top_jobs_aus')
-class TopJobsAUS(Resource):
-    @api.response(200, 'OK')
-    def get(self):
-        # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_aus_jobs.png'), "rb").read().encode("base64")}
-        return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_aus_jobs.png'), "rb").read())}
-    
-@api.route('/process_duration')
-class ProcessDuration(Resource):
-    @api.response(200, 'OK')
-    def get(self):
-        # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'process_duration.png'), "rb").read().encode("base64")} 
-        return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'process_duration.png'), "rb").read())}
-    
-@api.route('/job_types')
-class JobTypes(Resource):
-    @api.response(200, 'OK')
-    def get(self):
-        # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'job_types.png'), "rb").read().encode("base64")}
-        return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'job_types.png'), "rb").read())}
-
 
 if __name__ == '__main__':
     createDatabase(dbFile)

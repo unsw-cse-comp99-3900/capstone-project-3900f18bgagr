@@ -16,6 +16,7 @@ const Profile = (props) => {
   const [alertDetailsSuccess, setAlertDetailsSuccess] = useState(false)
   const [alertSkillsSuccess, setAlertSkillsSuccess] = useState(false)
   const [alertDetailsMessage, setAlertMessage] = useState("")
+  const [alertSkillsMessage, setAlertSkillsMessage] = useState("")
   const skillsOptions = [
     { title: 'JavaScript' },
     { title: 'React' },
@@ -76,14 +77,15 @@ const Profile = (props) => {
       
       const data = await response.json()
       if (component === "Profile") {
+        setAlertMessage(component + ' ' + data.message)
         setAlertDetailsSuccess(true)
-      } else {
+      } else if (component === "Skills") {
+        setAlertSkillsMessage(component + ' ' + data.message)
         setAlertSkillsSuccess(true)
       }
       if (!response.ok) {
-        setAlertMessage(data.Error)
+        alert(data.response)
       } else {
-        setAlertMessage(component + ' ' + data.message)
         props.setUserPassword(newPassword)
         setNewPassword(() => "")
       }
@@ -104,7 +106,7 @@ const Profile = (props) => {
       {
         alertSkillsSuccess &&
         <Alert severity="success" onClose={() => setAlertSkillsSuccess(false)}>
-          {alertDetailsMessage}
+          {alertSkillsMessage}
         </Alert>
       }
       <Paper style={{ padding: 16 }}>

@@ -77,6 +77,7 @@
     display: flex;
     gap: 30px;
     margin: 60px auto;
+    justify-content: center;
 }
 
 .submit{

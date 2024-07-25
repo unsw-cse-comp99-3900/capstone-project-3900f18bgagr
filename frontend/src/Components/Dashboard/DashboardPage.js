@@ -1,6 +1,6 @@
 /*eslint no-warning-comments: "error"*/
 import React, {useState, useEffect} from 'react';
-import { Grid } from '@mui/material';
+import { Grid, Typography, Button } from '@mui/material';
 import NavigationBar from '../Navigation/NavigationBar';
 import ExploreGraduateCareerPaths from './ExploreGraduateCareerPaths';
 import MyPersonalizedCareerPlan from './MyPersonalizedCareerPlan';
@@ -20,9 +20,9 @@ const DashboardPage = (props) => {
   const [lastName, setLastName] = useState("")
   const [userSkills, setUserSkills] = useState([])
   const [password, setUserPassword] = useState("")
+  const [userId, setUserId] = useState(false)
 
   const getUserDetails = async () => {
-    // alert('here')
     try {
       const response = await fetch("http://localhost:5000/userDetails", {
         method: "GET",
@@ -56,6 +56,8 @@ const DashboardPage = (props) => {
           console.log('user skills:', userSkills)
         }
       }
+
+      console.log(email && firstName && lastName)
     } catch (error) {
       console.error("Error fetching user details:", error);
       // Handle error state or alert the user
@@ -66,6 +68,14 @@ const DashboardPage = (props) => {
     getUserDetails()
   }, [props.token, props.userId])
 
+  useEffect(() => {
+    const checktoken = localStorage.getItem("token");
+    const checkId = localStorage.getItem("id");
+    if (checktoken && checkId) {
+      setUserId(true)
+    }
+  }, []);
+
 
   return (
     <div style={{display: "flex", width: '100%', flexDirection: 'column', height: '98vh', margin: '-10px'}}>
@@ -73,20 +83,42 @@ const DashboardPage = (props) => {
         {props.userId ? <NavigationBar homeButton={'logout'} setEmail={setEmail} setToken={props.setToken} setUserId={props.setUserId}/> : <NavigationBar homeButton={false} />}
       </div>
       <div style={{ padding: "20px", height: '80%'}}>
-        <Grid container spacing={3} >
+        <Grid container
+              direction="row"
+              justifyContent="space-evenly"
+              alignItems="center"
+              spacing={3} 
+              height='100%'
+        >
           {email && firstName && lastName &&
-              <Grid item xs={12} md={8}>
-                <Profile password={password} setUserPassword={setUserPassword} firstName={firstName} setFirstName={setFirstName} lastName={lastName} setLastName={setLastName} email={email} setEmail={setEmail} userSkills={userSkills} setUserSkills={setUserSkills} userId={props.userId}/>
+              <Grid item xs={5}>
+                <item><Profile password={password} setUserPassword={setUserPassword} firstName={firstName} setFirstName={setFirstName} lastName={lastName} setLastName={setLastName} email={email} setEmail={setEmail} userSkills={userSkills} setUserSkills={setUserSkills} userId={props.userId}/> </item>
               </Grid>
           }
-          <Grid item xs={12} md={4}>
-            <CareerAdviceLinks />
-          </Grid>
-          <Grid item xs={12}>
-            <ExploreGraduateCareerPaths />
-          </Grid>
-          <Grid item xs={12}>
-            <MyPersonalizedCareerPlan />
+          {!userId && !email && !firstName && !lastName && 
+              <div style={{flexDirection: 'row'}}>
+                <Typography variant="h10">RECOMMENDER SYSTEM</Typography> <br/> <br/>  <br/>
+                <Typography variant="h3">CAREER PATHS</Typography> <br/> <br/>  <br/>
+                <Typography variant="h10">CREATED BY F18BGAGR</Typography> <br/> <br/>  <br/> <br/> <br/>
+                <Button variant="outlined" style={{borderColor:'#470da3', color: '#470da3', borderRadius: '100px', width: '40%'}} onClick={() => navigate('/loginSignUp')}>Login</Button>
+              </div>
+          }
+          {userId && !email && !firstName && !lastName && 
+              <div style={{flexDirection: 'row'}}>
+                <Box sx={{ display: 'flex' }}>
+                  <Typography sx={{ marginLeft: 2 }}>Loading Profile...</Typography>
+                  <CircularProgress />
+                </Box>
+              </div>
+          }
+          <Grid item xs={3.2}>
+            <item><ExploreGraduateCareerPaths /></item>
+            <br/> <br/> <br/>
+            <br/> <br/> <br/>
+            <item><MyPersonalizedCareerPlan /></item>
+            <br/> <br/> <br/>
+            <br/> <br/> 
+            <item><CareerAdviceLinks /></item>
           </Grid>
         </Grid>
       </div>

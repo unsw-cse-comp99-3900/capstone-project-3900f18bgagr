@@ -9,14 +9,9 @@ const ExploreGraduateCareerPaths = () => {
   };
 
   return (
-    <Paper style={{ padding: 16 }}>
-      <Typography variant="h5" gutterBottom>
-        Explore Graduate Career Paths
-      </Typography>
-      <Button style={{backgroundColor: '#470da3'}} variant="contained" onClick={handleButtonClick}>
-        Find your paths
-      </Button>
-    </Paper>
+    <Button style={{backgroundColor: '#470da3', borderRadius: '15px', scale: '1.2', width: '100%', height: '50px'}} variant="contained" onClick={handleButtonClick}>
+    Explore Graduate Career Paths
+    </Button>
   );
 };
 

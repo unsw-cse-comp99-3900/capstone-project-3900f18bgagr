@@ -10,15 +10,9 @@ const MyPersonalizedCareerPlan = () => {
   };
 
   return (
-    <Paper style={{ padding: 16 }}>
-      <Typography variant="h5" gutterBottom>
-        My Personalized Career Plan
-      </Typography>
-      <Button variant="contained" color="primary" style={{backgroundColor: '#3c009d'}} onClick={handlePlanClick}>
-        Manage Plan
-      </Button>
-      {/* Additional interactive elements as needed */}
-    </Paper>
+    <Button style={{backgroundColor: '#470da3', borderRadius: '15px', width: '100%', scale: '1.2', height: '50px'}} variant="contained" onClick={handlePlanClick}>
+      Manage Plan
+    </Button>
   );
 };
 

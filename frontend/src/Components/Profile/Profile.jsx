@@ -117,8 +117,8 @@ const Profile = (props) => {
           Name: {props.firstName} {props.lastName} <br />
           Email: {props.email} <br />
           User ID: {props.userId} <br /> < br/>
-          <Button style={{backgroundColor: '#470da3'}} variant="contained" onClick={(e) => setEditDetailInProgress(() => !editDetailInProgress)}>
-            {editDetailInProgress ? <div onClick={() => handleUpdate('Profile')}>Update Changes</div> : "Edit Details"}
+          <Button variant="outlined" style={{borderColor:'#470da3', color: '#470da3'}} onClick={(e) => setEditDetailInProgress(() => !editDetailInProgress)}>
+            {editDetailInProgress ? <div onClick={() => handleUpdate('Profile')}>Update Profile</div> : "Edit Details"}
           </Button>
           <br />
           <br />
@@ -167,7 +167,7 @@ const Profile = (props) => {
                 />
               </div>
               <div>
-              <Button variant="outlined" color='secondary' onClick={() => setEditPasswordInProgress(!editPassWordInProgress)}>Change Password?</Button>
+                <Button variant="outlined" style={{borderColor:'#470da3', color: '#470da3'}} onClick={() => setEditPasswordInProgress(!editPassWordInProgress)}>Change Password?</Button>
               </div>
               {editPassWordInProgress && 
               <div>
@@ -201,8 +201,8 @@ const Profile = (props) => {
           {props.userSkills.length > 0 ? props.userSkills.map(skill => skill.title).join(',  ') : "No skills. Edit profile to add skills."} <br />
         </Typography>
         <br />
-        <Button style={{backgroundColor: '#470da3'}} variant="contained" onClick={(e) => setEditSkillsInProgress(() => !editSkillsInProgress)}>
-          {editSkillsInProgress ? <div onClick={() => handleUpdate('Skills')}>Update Changes</div> : "Edit Skills"}
+        <Button variant="outlined" style={{borderColor:'#470da3', color: '#470da3'}} onClick={(e) => setEditSkillsInProgress(() => !editSkillsInProgress)}>
+          {editSkillsInProgress ? <div onClick={() => handleUpdate('Skills')}>Update Skills</div> : "Edit Skills"}
         </Button>
         <br/>
         <br/>

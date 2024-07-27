@@ -26,8 +26,8 @@ const NavigationBar = (props) => {
   return (
     <AppBar position="static" style={{ background: '#3c009d', margin: 0}}>
       <Toolbar>
-        <Typography variant="h6" style={{ flexGrow: 1, textAlign: 'center' }}>
-          Trajectory
+        <Typography variant="h6" style={{ flexGrow: 1, textAlign: 'left' }}>
+          Career Path Navigator
         </Typography>
         {
             props.homeButton === true ? (

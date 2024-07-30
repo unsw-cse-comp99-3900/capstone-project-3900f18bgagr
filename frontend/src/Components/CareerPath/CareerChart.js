@@ -27,7 +27,7 @@ const SankeyChart = ({ data }) => {
       svg.selectAll("*").remove(); // Clear SVG before redraw
 
       const width = 960;
-      const height = 500;
+      const height = 800;
 
       // Setup Sankey generator
       const sankeyGenerator = sankey()
@@ -65,7 +65,7 @@ const SankeyChart = ({ data }) => {
           .attr("width", sankeyGenerator.nodeWidth())
           .attr("fill", d => color(d.name))
           .append("title")
-          .text(d => `${d.name}\n${d.value}`);
+          .text(d => `${d.name}\n${d.value}\n${d.skillsTicked}\n${d.skillsNotMet}`);
 
       // Add labels
       svg.append("g")
@@ -84,10 +84,10 @@ const SankeyChart = ({ data }) => {
 
     return (
         <div style={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column'}}>
-            <svg ref={svgRef} width={1260} height={500} style={{margin: "20px" }} />;
-            <Button style={{backgroundColor: '#460f9f'}} variant="contained" color="primary" onClick={handleSaveDiagram}>
-              <Typography variant="button">Save Diagram</Typography>
-            </Button>
+            <svg ref={svgRef} width={1260} height={900} style={{margin: "20px" }} />;
+            {/*<Button style={{backgroundColor: '#460f9f'}} variant="contained" color="primary" onClick={handleSaveDiagram}>*/}
+            {/*  <Typography variant="button">Save Diagram</Typography>*/}
+            {/*</Button>*/}
         </div>
     )
 };

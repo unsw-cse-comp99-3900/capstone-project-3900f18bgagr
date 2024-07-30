@@ -32,7 +32,6 @@ api = Api(app,
           description='API for job recommendations based on provided skills'
           )
 CORS(app)
-
 # Configuration for Flask-Mail
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
 app.config['MAIL_PORT'] = 587
@@ -94,6 +93,7 @@ class RequestReset(Resource):
         else:
             return {'message': 'Email not found'}, 400
 
+
 @api.route('/reset-password')
 class ResetPassword(Resource):
     @api.expect(api.model('ResetPassword', {
@@ -116,14 +116,17 @@ class ResetPassword(Resource):
             return {'message': 'Invalid reset code'}, 400
         if not validate_password(newPassword):
             return {'message': 'New password is not secure.'}, 400
+
         updateDb('accounts', ['password'], [newPassword], 'email', userEmail)
         return {'message': 'Password reset successfully'}, 200
+
 
 def send_reset_email(email, reset_code):
     msg = Message('Password Reset Code', recipients=[email])
     msg.body = f'Your reset code is: {reset_code}'
     with app.app_context():
         mail.send(msg)
+
 
 # DATABASE
 def createDatabase(dbFile):
@@ -169,12 +172,14 @@ def getUserDetails(id, email):
         elif email:
             c.execute("SELECT * FROM accounts WHERE email = ?", (email,))
         userDetails = c.fetchone()  # Fetch single row
+
         if userDetails:
             print("User details found:", userDetails)
             return userDetails
         else:
             print("User details not found")
             return None  # or handle as needed
+
     except sqlite3.Error as e:
         print(f"Error fetching user details: {e}")
         raise  # Rethrow the exception to handle it at a higher level
@@ -182,6 +187,7 @@ def getUserDetails(id, email):
     finally:
         if conn:
             conn.close()
+
 
 def emailExists(email):
     try:
@@ -207,6 +213,7 @@ def validate_password(password):
     if not re.search("[0-9]", password):
         return False
     return True
+
 
 # MODELS
 registrationModel = api.model('Register', {
@@ -485,8 +492,6 @@ class JobTypes(Resource):
         # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'job_types.png'), "rb").read().encode("base64")}
         return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'job_types.png'), "rb").read())}
 
-
-
 def params_null(value):
     if value == '':
         return None
@@ -511,11 +516,18 @@ class GetPathData(Resource):
             all_career_paths = generate_all_career_paths_for_recommendations(user_skills, recommendations, df)
             name_arr = []
             job_title_arr = []
+            title_skills_arr = []
             for path in all_career_paths:
                 for index, value in enumerate(path):
+                    # print("path", path)
                     union_title = value['job_level'] + ' ' + value['job_title']
                     if union_title not in name_arr:
                         name_arr.append(union_title)
+                        title_skills_dict = {}
+                        title_skills_dict['title'] = union_title
+                        title_skills_dict['skillsTicked'] = value['skillsTicked']
+                        title_skills_dict['skillsNotMet'] = value['skillsNotMet']
+                        title_skills_arr.append(title_skills_dict)
 
             for index, job_title in enumerate(name_arr):
                 job_obj = {}
@@ -552,6 +564,11 @@ class GetPathData(Resource):
             all_obj = {}
             all_obj['nodes'] = job_title_arr
             all_obj['links'] = job_links_arr
+            for j in job_title_arr:
+                for s in title_skills_arr:
+                    if j['name'] == s['title']:
+                        j['skillsTicked'] = s['skillsTicked']
+                        j['skillsNotMet'] = s['skillsNotMet']
 
             return jsonify(all_obj)
 
@@ -561,4 +578,5 @@ class GetPathData(Resource):
 
 if __name__ == '__main__':
     createDatabase(dbFile)
+
     app.run(debug=True)

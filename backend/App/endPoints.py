@@ -505,18 +505,28 @@ class GetPathData(Resource):
     def post(self):
         try:
             # data = request.json
+            print('called')
             data = request.get_json()
             user_skills = data['user_skills']
             experience_role = data['experience_role']
             experience_years = data['experience_years']
             if experience_years:
-                experience_years = int(experience_years)
+                experience_years = sum(int(x) for x in experience_years)
+            
+            # pre-fill
+            if len(experience_role) <= 0 and len(experience_years) <= 0:
+                experience_role = ['Developer']
+                experience_years = 0
+
+            # print(experience_role)
+            # print(experience_years)
             df = load_data()
             recommendations = recommend_jobs(user_skills, experience_role, experience_years)
             all_career_paths = generate_all_career_paths_for_recommendations(user_skills, recommendations, df)
             name_arr = []
             job_title_arr = []
             title_skills_arr = []
+            print(all_career_paths)
             for path in all_career_paths:
                 for index, value in enumerate(path):
                     # print("path", path)
@@ -569,7 +579,10 @@ class GetPathData(Resource):
                     if j['name'] == s['title']:
                         j['skillsTicked'] = s['skillsTicked']
                         j['skillsNotMet'] = s['skillsNotMet']
-
+            print()
+            print()
+            print()
+            print(all_obj)
             return jsonify(all_obj)
 
         except Exception as e:

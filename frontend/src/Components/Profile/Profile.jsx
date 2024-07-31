@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
+import { SkillsList } from '../Assets/skillsList';
 
 const Profile = (props) => {
   const navigate = useNavigate();
@@ -17,20 +18,9 @@ const Profile = (props) => {
   const [alertSkillsSuccess, setAlertSkillsSuccess] = useState(false)
   const [alertDetailsMessage, setAlertMessage] = useState("")
   const [alertSkillsMessage, setAlertSkillsMessage] = useState("")
-  const skillsOptions = [
-    { title: 'JavaScript' },
-    { title: 'React' },
-    { title: 'Node.js' },
-    { title: 'Python' },
-    { title: 'Django' },
-    { title: 'Java' },
-    { title: 'Spring Boot' },
-    { title: 'C++' },
-    { title: 'Ruby on Rails' },
-    { title: 'MySQL' },
-    { title: 'SQLite3' },
-    { title: 'PostgreSQL' },
-  ];
+  const skillsOptions = SkillsList.map(skill => ({'title': skill}))
+  const [isUpdating, setIsUpdating] = useState(false)
+
 
   const validatePassword = (password) => {
     if (password.length < 8) {
@@ -50,6 +40,7 @@ const Profile = (props) => {
   
   const handleUpdate = async (component) => {
     try {
+      setIsUpdating(true)
       const headers = {
         "Content-type": "application/json",
         Authorization: props.token,
@@ -92,7 +83,9 @@ const Profile = (props) => {
 
     } catch (error) {
       console.error("Error fetching updating skills:", error);
-    } 
+    } finally {
+      setIsUpdating(false)
+    }
   }
 
   return (
@@ -118,7 +111,10 @@ const Profile = (props) => {
           Email: {props.email} <br />
           User ID: {props.userId} <br /> < br/>
           <Button variant="outlined" style={{borderColor:'#470da3', color: '#470da3'}} onClick={(e) => setEditDetailInProgress(() => !editDetailInProgress)}>
-            {editDetailInProgress ? <div onClick={() => handleUpdate('Profile')}>Update Profile</div> : "Edit Details"}
+            {!isUpdating &&
+              (editDetailInProgress ? <div onClick={() => handleUpdate('Profile')}>Update Profile</div> : "Edit Details")
+            }
+            {isUpdating && <>Updating ..</>}
           </Button>
           <br />
           <br />
@@ -202,10 +198,13 @@ const Profile = (props) => {
         </Typography>
         <br />
         <Button variant="outlined" style={{borderColor:'#470da3', color: '#470da3'}} onClick={(e) => setEditSkillsInProgress(() => !editSkillsInProgress)}>
-          {editSkillsInProgress ? <div onClick={() => handleUpdate('Skills')}>Update Skills</div> : "Edit Skills"}
-        </Button>
-        <br/>
-        <br/>
+            {!isUpdating &&
+              (editSkillsInProgress ? <div onClick={() => handleUpdate('Skills')}>Update Skills</div> : "Edit Skills")
+            }
+            {isUpdating && <>Updating ..</>}
+          </Button>
+          <br />
+          <br />
         {editSkillsInProgress && 
           <Autocomplete
           multiple

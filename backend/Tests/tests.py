@@ -297,8 +297,8 @@ class TestClass:
         assert 'message' in data
         assert data['message'] == 'successfully changed.'
 
-    """def test_edit_detail_success_no_new_updates_provided(self):
-        """'Test edit details success when no new updates are provided.'"""
+    def test_edit_detail_success_no_new_updates_provided(self):
+        """Test edit details success when no new updates are provided."""
         self.reset_database()
         response = requests.post(f"{URL}/register", json=self.user_payload, timeout=TIMEOUT)
         data = response.json()
@@ -311,7 +311,7 @@ class TestClass:
         data = response.json()
         assert 'message' in data
         assert data['message'] == 'successfully changed.'
-"""
+
     def test_edit_detail_fail_unauthorized(self):
         """Test edit details failure when unauthorized."""
         self.reset_database()

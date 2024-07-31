@@ -55,7 +55,7 @@ const SankeyChart = ({ data }) => {
                 .attr("width", 100)  // Fixed width for nodes
                 .attr("fill", d => color(d.name))
                 .append("title")
-                .text(d => `Job title: ${d.name}\nProfessionals working in this field: ${d.value}\nSkills met: ${d.skillsTicked}\nSkills not met: ${d.skillsNotMet}`);
+                .text(d => `Job title: ${d.name}\nProfessionals working in this field: ${d.value}\nSkills met: ${d.skillsTicked}\nSkills not met: ${d.skillsNotMet}\nMinimum experience required (years): ${d.experienceYears}`);
 
             // Add labels
             svg.append("g")
@@ -111,7 +111,7 @@ const SankeyChart = ({ data }) => {
                 .attr("width", sankeyGenerator.nodeWidth())
                 .attr("fill", d => color(d.name))
                 .append("title")
-                .text(d => `Job title: ${d.name}\nProfessionals working in this field: ${d.value}\nSkills met: ${d.skillsTicked}\nSkills not met: ${d.skillsNotMet}`);
+                .text(d => `Job title: ${d.name}\nProfessionals working in this field: ${d.value}\nSkills met: ${d.skillsTicked}\nSkills not met: ${d.skillsNotMet}\nMinimum experience required (years): ${d.experienceYears}`);
 
             // Add labels
             svg.append("g")
@@ -132,7 +132,7 @@ const SankeyChart = ({ data }) => {
     return (
         <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
             <Stack sx={{ width: '100%' }} spacing={2}>
-                <Alert severity="info">Hover over the vertical bars representing job titles to see more information.</Alert>
+                <Alert severity="info">Hover over the darker vertical bars representing job titles to see more information.</Alert>
                 <br/>
             </Stack>
             <svg ref={svgRef} width={1260} height={900} style={{ margin: "20px" }} />

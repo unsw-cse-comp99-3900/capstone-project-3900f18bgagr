@@ -19,7 +19,6 @@ const CareerPlan = (props) => {
     //   "UX Designer",
     //   "Cybersecurity Analyst",
     // ];
-    console.log(SkillsList)
     const roles = [
         "Developer",
         "Data Engineer",
@@ -57,8 +56,20 @@ const CareerPlan = (props) => {
     
     const [loading, setLoading] = React.useState(true);
 
+    useEffect(() => {
+        console.log(experiences)
+    }, [experiences])
+
+
     const handleUpdate = async () => {
+        let exp = experiences.map((e) => `${e['as']}-${e['for']}`).join(',')
         try {
+            // for (let i = 0; i < experiences.length; i++) {
+            //     const expRole = experiences[i].as;
+            //     const expYears = experiences[i].for;
+            //     const exp = `${expRole}-${expYears}`;
+            //     experiences.push(exp);
+            // }
           const headers = {
             "Content-type": "application/json",
             Authorization: props.token,
@@ -67,7 +78,8 @@ const CareerPlan = (props) => {
           }
     
           const body = JSON.stringify({
-            "skills": selectedLanguages.join(',')
+            "skills": selectedLanguages.join(','),
+            'experience': exp
           })
           
           const response = await fetch("http://localhost:5000/Edit_detail", {
@@ -150,6 +162,12 @@ const CareerPlan = (props) => {
                     console.log(yo)
                   setSelectedLanguages(() => yo);
                 }
+                if (data.experience) {
+                  setExperience(() => {
+                    const exp = data.experience.split(',').map(e => ({'as': e.split('-')[0], 'for': e.split('-')[1]}))
+                    return exp
+                  })
+                }
               }
             } catch (error) {
               console.error("Error fetching user details:", error);
@@ -191,7 +209,7 @@ const CareerPlan = (props) => {
                         setOpen={setLanguageDialogOpen}
                         selected={selectedLanguages}
                         all={allLanguages}
-                        title={"Select Programming Languages"}
+                        title={"Select Skills"}
                         setSelected={setSelectedLanguages}
                     />
 
@@ -311,7 +329,7 @@ const CareerPlan = (props) => {
                                     </Grid>
                                     <Grid item xs={12}>
                                         <Typography variant="h6" sx={{}}>
-                                            Programming Languages
+                                            Skills
                                         </Typography>
                                     </Grid>
                                     <Grid item xs={12}>

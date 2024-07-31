@@ -144,6 +144,7 @@ def createDatabase(dbFile):
                 lastName TEXT,
                 password TEXT,
                 skills TEXT,
+                experience TEXT,
                 token TEXT,
                 resetCode TEXT)
                 ''')
@@ -237,7 +238,8 @@ edit_detail_model = api.model('Edit_detail', {
     'id': fields.String(required=True, description='Username'),
     'firstName': fields.String(description='First Name'),
     'lastName': fields.String(description='Last Name'),
-    'skills': fields.List(fields.String, description='List of skills')
+    'skills': fields.List(fields.String, description='List of skills'),
+    'experience': fields.List(fields.String, description='String (role-year) e.g. "SWE-1,Data Analyst-3"')
 })
 
 
@@ -367,7 +369,8 @@ class userDetails(Resource):
                                'firstName': userDetails[2],
                                'lastName': userDetails[3],
                                'password': userDetails[4],
-                               'skills': userDetails[5]
+                               'skills': userDetails[5],
+                               'experience': userDetails[6]
                            }, 200
                 else:
                     print("User Details not found")
@@ -417,8 +420,10 @@ class Edit_detail(Resource):
             new_firstName = data.get('firstName')
             new_lastName = data.get('lastName')
             new_skills = data.get('skills')
+            new_experience = data.get('experience')
 
             userDetails = getUserDetails(user_id, None)
+            print(f'EXPERIENCE: {new_experience}')
 
             if userDetails and user_id == userDetails[0]:
                 update_fields = {}
@@ -430,6 +435,8 @@ class Edit_detail(Resource):
                     update_fields['skills'] = new_skills
                 if new_password:
                     update_fields['password'] = new_password
+                if new_experience:
+                    update_fields['experience'] = new_experience
 
                 print('PASS')
                 if update_fields:
@@ -515,7 +522,7 @@ class GetPathData(Resource):
             
             # pre-fill
             if len(experience_role) <= 0 and len(experience_years) <= 0:
-                experience_role = ['Developer']
+                experience_role = ['']
                 experience_years = 0
 
             # print(experience_role)
@@ -537,6 +544,7 @@ class GetPathData(Resource):
                         title_skills_dict['title'] = union_title
                         title_skills_dict['skillsTicked'] = value['skillsTicked']
                         title_skills_dict['skillsNotMet'] = value['skillsNotMet']
+                        title_skills_dict['experienceYears'] = value['experience_years']
                         title_skills_arr.append(title_skills_dict)
 
             for index, job_title in enumerate(name_arr):
@@ -579,6 +587,7 @@ class GetPathData(Resource):
                     if j['name'] == s['title']:
                         j['skillsTicked'] = s['skillsTicked']
                         j['skillsNotMet'] = s['skillsNotMet']
+                        j['experienceYears'] = s['experienceYears']
             print()
             print()
             print()

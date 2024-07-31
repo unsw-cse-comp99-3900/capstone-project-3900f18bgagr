@@ -35,12 +35,6 @@ class TestClass:
         'password': 'Password123'
     }
 
-    edit_payload = {
-        'firstName': 'newFirst',
-        'lastName': 'newLast',
-        'skills': ['Python', 'Flask']
-    }
-
     reset_payload = {
         'email': 'user1234@gmail.com'
     }
@@ -289,8 +283,15 @@ class TestClass:
         data = response.json()
         token = data['token']
         user_id = data['id']
+
+        edit_payload = {
+            'id': user_id,
+            'firstName': 'newFirst',
+            'lastName': 'newLast',
+            'skills': 'Python,Flask'
+        }
         headers = {"id": user_id, "password": self.login_payload['password'], "Authorization": f"Bearer {token}"}
-        response = requests.patch(f"{URL}/Edit_detail", json=self.edit_payload, headers=headers, timeout=TIMEOUT)
+        response = requests.patch(f"{URL}/Edit_detail", json=edit_payload, headers=headers, timeout=TIMEOUT)
         assert response.status_code == 200
         data = response.json()
         assert 'message' in data
@@ -309,7 +310,7 @@ class TestClass:
         assert response.status_code == 200
         data = response.json()
         assert 'message' in data
-        assert data['message'] == 'No new updates provided.'
+        assert data['message'] == 'successfully changed.'
 
     def test_edit_detail_fail_unauthorized(self):
         """Test edit details failure when unauthorized."""
@@ -317,8 +318,15 @@ class TestClass:
         response = requests.post(f"{URL}/register", json=self.user_payload, timeout=TIMEOUT)
         data = response.json()
         token = data['token']
+        user_id = data['id']
+        edit_payload = {
+            'id': user_id,
+            'firstName': 'newFirst',
+            'lastName': 'newLast',
+            'skills': 'Python,Flask'
+        }
         unauthorized_headers = {"id": 'invalidId', "password": self.login_payload['password'], "Authorization": f"Bearer {token}"}
-        response = requests.patch(f"{URL}/Edit_detail", json=self.edit_payload, headers=unauthorized_headers, timeout=TIMEOUT)
+        response = requests.patch(f"{URL}/Edit_detail", json=edit_payload, headers=unauthorized_headers, timeout=TIMEOUT)
         assert response.status_code == 401
         data = response.json()
         assert 'Error' in data

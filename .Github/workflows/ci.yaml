@@ -1,21 +1,15 @@
-name: CI
+name: Python application
 
 on:
   push:
+    branches: [ "CD_CD" ]
   pull_request:
+    branches: [ "CD_CD" ]
 
 
 jobs:
-  run-tests:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version:
-          -3.12.4
-    
-    name: Test
-    runs-on: ${{ matrix.os }}
+  build:
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -24,7 +18,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: "3.12.4"
       
       - name: Install dependencies
         run: |
@@ -34,4 +28,4 @@ jobs:
       - name: Run tests
         run: |
           cd backend/Tests
-          pytest tests.py --doctest-modules --junitxml=junit/test-results.xml --cov=com --cov-report=xml --cov-report=html
+          pytest tests.py

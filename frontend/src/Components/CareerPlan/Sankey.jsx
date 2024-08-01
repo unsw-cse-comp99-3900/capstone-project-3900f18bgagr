@@ -24,7 +24,7 @@ const CareerPlanSankey = ({sankey, setSankey, props}) => {
 
         ],
     };
-    console.log(data);
+    console.log(props);
 
     return (
         <div style={{display: 'flex', justifyContent: 'center'}}>

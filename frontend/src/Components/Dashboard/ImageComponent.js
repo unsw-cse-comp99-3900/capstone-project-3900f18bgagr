@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 
 const ImageComponent = ({ endpoint, altText }) => {
     const [image, setImage] = useState('');
+    const [isReady, setIsReady] = useState(false)
 
     useEffect(() => {
         const fetchImage = async () => {
@@ -9,6 +10,7 @@ const ImageComponent = ({ endpoint, altText }) => {
                 const response = await fetch(`http://localhost:5000/${endpoint}`);
                 const data = await response.json();
                 setImage(data.image);
+                setIsReady(true)
             } catch (error) {
                 console.error("There was an error fetching the image!", error);
             }
@@ -18,9 +20,11 @@ const ImageComponent = ({ endpoint, altText }) => {
     }, [endpoint]);
 
     return (
-        <div>
-            {image && <img src={image} alt={altText} style={{ width: '100%', height: 'auto' }} />}
-        </div>
+        isReady ? 
+            <img src={image} alt={altText} style={{ width: '100%', height: 'auto' }} />
+         : 
+            <div>Loading...</div> // You can show a loading indicator or handle differently
+        
     );
 };
 

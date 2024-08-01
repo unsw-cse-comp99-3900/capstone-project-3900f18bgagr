@@ -21,13 +21,14 @@
 // export default CareerAdviceLinks;
 
 import * as React from 'react';
-import { Paper, Typography, Link, Button } from '@mui/material';
+import { Paper, Typography, Link, Button, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
 import DialogContent from '@mui/material/DialogContent';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import ImageComponent from './ImageComponent';
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialogContent-root': {
@@ -98,7 +99,15 @@ export default function CareerAdviceLinks() {
               Other News Article/Blog Post
             </Link>
           </Typography>
-       
+          <br/>
+          <br/>
+          <Paper>
+            <ImageComponent endpoint="top_jobs_aus" altText="Top 10 AUS Jobs" />
+          </Paper>
+          <br/>
+          <Paper>
+            <ImageComponent endpoint="job_types" altText="Job Types" />
+          </Paper>
         </DialogContent>
       </BootstrapDialog>
     </React.Fragment>

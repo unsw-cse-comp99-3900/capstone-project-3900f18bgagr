@@ -6,6 +6,16 @@ import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
+import { SkillsList } from '../Assets/skillsList';
+import Divider from '@mui/material/Divider';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import Modal from '@mui/material/Modal';
+import Backdrop from '@mui/material/Backdrop';
+import Fade from '@mui/material/Fade';
+import { Height } from '@mui/icons-material';
+
 
 const Profile = (props) => {
   const navigate = useNavigate();
@@ -17,20 +27,10 @@ const Profile = (props) => {
   const [alertSkillsSuccess, setAlertSkillsSuccess] = useState(false)
   const [alertDetailsMessage, setAlertMessage] = useState("")
   const [alertSkillsMessage, setAlertSkillsMessage] = useState("")
-  const skillsOptions = [
-    { title: 'JavaScript' },
-    { title: 'React' },
-    { title: 'Node.js' },
-    { title: 'Python' },
-    { title: 'Django' },
-    { title: 'Java' },
-    { title: 'Spring Boot' },
-    { title: 'C++' },
-    { title: 'Ruby on Rails' },
-    { title: 'MySQL' },
-    { title: 'SQLite3' },
-    { title: 'PostgreSQL' },
-  ];
+  const skillsOptions = SkillsList.map(skill => ({'title': skill}))
+  const [isUpdating, setIsUpdating] = useState(false)
+  const [editCompTitle, setEditCompTitle] = useState('')
+
 
   const validatePassword = (password) => {
     if (password.length < 8) {
@@ -50,13 +50,14 @@ const Profile = (props) => {
   
   const handleUpdate = async (component) => {
     try {
+      setIsUpdating(true)
       const headers = {
         "Content-type": "application/json",
         Authorization: props.token,
         'id': props.userId,
         'password': props.password,
       }
-      if (newPassword.length > 0 && validatePassword(newPassword) == true) {
+      if (newPassword.length > 0 && validatePassword(newPassword) === true) {
         headers.password = newPassword;
       } else if (newPassword.length > 0 && validatePassword(newPassword) !== true) {
         alert('New password error. Make sure to create a secure one.')
@@ -92,8 +93,50 @@ const Profile = (props) => {
 
     } catch (error) {
       console.error("Error fetching updating skills:", error);
-    } 
+    } finally {
+      setIsUpdating(false)
+    }
   }
+
+  const style = {
+    py: 0,
+    width: '100%',
+    maxWidth: 360,
+    borderRadius: 2,
+    border: '1px solid',
+    borderColor: 'divider',
+    backgroundColor: 'background.paper',
+  };
+
+  const [openModalFirstName, setOpenModalFirstName] = useState(false);
+  const handleOpenModalFirstName = () => setOpenModalFirstName(true);
+  const handleCloseModalFirstName = () => setOpenModalFirstName(false);
+  const handleModalSave = () => {
+    // props.setFirstName(newFirstName);
+    handleUpdate("Profile")
+    handleCloseModalFirstName();
+  };
+
+  const value = (() => {
+    if (editCompTitle === "First Name") {
+      return props.firstName;
+    } else if (editCompTitle === "Last Name") {
+      return props.lastName;
+    } else if (editCompTitle === "New Password") {
+      return newPassword;
+    }
+    return '';
+  })();
+
+  const handleChange = (e) => {
+    if (editCompTitle === "First Name") {
+      props.setFirstName(e.target.value);
+    } else if (editCompTitle === "Last Name") {
+      props.setLastName(e.target.value);
+    } else {
+      setNewPassword(e.target.value);
+    }
+  };
 
   return (
     <>
@@ -109,103 +152,118 @@ const Profile = (props) => {
           {alertSkillsMessage}
         </Alert>
       }
-      <Paper style={{ padding: 16 }}>
+      <Paper style={{ padding: 16, display:'flex', alignItems:'center', flexDirection: 'column' }}>
         <Typography variant="h5" gutterBottom>
           My Profile
         </Typography>
+          <List sx={style}>
+            <ListItem>
+              <ListItemText primary={props.firstName} secondary='First Name'/>
+              <Button style={{color:"470da3"}} onClick={() => {
+                handleOpenModalFirstName()
+                setEditCompTitle('First Name')
+                }}>Edit</Button>
+          </ListItem>
+            <Divider component="li" />
+            <ListItem>
+              <ListItemText primary={props.lastName} secondary={'Last Name'}/> 
+              <Button style={{color:"470da3"}} onClick={() => {
+                handleOpenModalFirstName()
+                setEditCompTitle('Last Name')
+                }}>Edit</Button>
+            </ListItem>
+            <Divider variant="inset" component="li" />
+            <ListItem>
+              <ListItemText primary={'Hidden'} secondary={'Last Name'} style={{color: 'grey'}}/> 
+              <Button style={{color:"470da3"}} onClick={() => {
+                handleOpenModalFirstName()
+                setEditCompTitle('New Password')
+                }}>Edit</Button>
+            </ListItem>
+            <Divider variant="inset" component="li" />
+            <ListItem>
+              <ListItemText primary={props.email} secondary={'Email'} style={{color: 'grey'}}/> 
+                
+            </ListItem>
+            <Divider variant="inset" component="li" />
+            <ListItem>
+              <ListItemText primary={props.userId} secondary='User ID' style={{color: 'grey'}}/>
+            </ListItem>
+            <Divider variant="middle" component="li" />
+          </List>
+          <br/>
+          <Modal
+                open={openModalFirstName}
+                onClose={handleCloseModalFirstName}
+                closeAfterTransition
+                border='2px solid red'
+                style={{border: '2px solid', height: '100vh', width: '100vw', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column'}}
+              >
+                  <Box style={{background: 'white', width: '30%', borderRadius: '20px', padding: '40px'}}>
+                    <TextField
+                      fullWidth
+                      label={editCompTitle}
+                      variant="outlined"
+                      value={value}
+                      onChange={handleChange}
+                      type={editCompTitle === "New Password" ? "password" : 'text'}
+                    />
+                    <Box sx={{ mt: 2, display: 'flex', justifyContent: 'flex-end' }}>
+                      <Button
+                        variant="outlined"
+                        color="primary"
+                        onClick={handleCloseModalFirstName}
+                        sx={{ mr: 1 }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="contained"
+                        color="primary"
+                        onClick={handleModalSave}
+                      >
+                        Save
+                      </Button>
+                    </Box>
+                  </Box>
+              </Modal>
+      
+        <Typography variant="h6" gutterBottom>
+          Skills< br/>
+        </Typography>
         <Typography variant="h7" gutterBottom>
-          Name: {props.firstName} {props.lastName} <br />
-          Email: {props.email} <br />
-          User ID: {props.userId} <br /> < br/>
-          <Button variant="outlined" style={{borderColor:'#470da3', color: '#470da3'}} onClick={(e) => setEditDetailInProgress(() => !editDetailInProgress)}>
-            {editDetailInProgress ? <div onClick={() => handleUpdate('Profile')}>Update Profile</div> : "Edit Details"}
+          {props.userSkills.length > 0 ? (
+          <div>
+          {props.userSkills.map((skill, index) => (
+            <Button
+              key={index} 
+              variant='contained'
+              style={{
+                border: '1px solid #ACACAC',
+                background: '#F8F7F7',
+                borderRadius: '4px',
+                margin: '2px',
+                padding: '4px 8px',
+                display: 'inline-block',
+                color: 'black'
+              }}
+            >
+              {skill.title}
+            </Button>
+          ))}
+        </div>
+          )
+          : 
+          "No skills. Edit profile to add skills."} <br />
+        </Typography>
+        <Button variant="outlined" style={{borderColor:'#470da3', color: '#470da3'}} onClick={(e) => setEditSkillsInProgress(() => !editSkillsInProgress)}>
+            {!isUpdating &&
+              (editSkillsInProgress ? <div onClick={() => handleUpdate('Skills')}>Update Skills</div> : "Edit Skills")
+            }
+            {isUpdating && <>Updating ..</>}
           </Button>
           <br />
           <br />
-          {editDetailInProgress && 
-            <Box
-            component="form"
-            sx={{
-              '& .MuiTextField-root': { m: 1, width: '25ch' },
-            }}
-            noValidate
-            autoComplete="off"
-            >
-              <div>
-                <TextField
-                  id="outlined-password-input"
-                  label="First Name"
-                  type="text"
-                  autoComplete="current-password"
-                  value={props.firstName}
-                  onChange={(e) => props.setFirstName(e.target.value)}
-                  />
-                <TextField
-                  id="outlined-password-input"
-                  label="Last Name"
-                  type="text"
-                  autoComplete="current-password"
-                  value={props.lastName}
-                  onChange={(e) => props.setLastName(e.target.value)}
-                  />
-              </div>
-              <div>
-                <TextField
-                  id="outlined-password-input"
-                  label="Email"
-                  type="text"
-                  autoComplete="current-password"
-                  value={props.email}
-                  disabled
-                />
-                <TextField
-                  id="outlined-password-input"
-                  label="User ID"
-                  type="text"
-                  value={props.userId}
-                  disabled
-                />
-              </div>
-              <div>
-                <Button variant="outlined" style={{borderColor:'#470da3', color: '#470da3'}} onClick={() => setEditPasswordInProgress(!editPassWordInProgress)}>Change Password?</Button>
-              </div>
-              {editPassWordInProgress && 
-              <div>
-                <TextField
-                  id="outlined-password-input"
-                  label="Current Password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={props.password}
-                  disabled
-                  />
-                <TextField
-                  id="outlined-password-input"
-                  label="New Password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  />
-              </div>
-              }
-            </Box>
-          }
-          <br>
-          </br>
-        </Typography>
-        <Typography variant="h6" gutterBottom>
-          Skills: < br/>
-        </Typography>
-        <Typography variant="h7" gutterBottom>
-          {props.userSkills.length > 0 ? props.userSkills.map(skill => skill.title).join(',  ') : "No skills. Edit profile to add skills."} <br />
-        </Typography>
-        <br />
-        <Button variant="outlined" style={{borderColor:'#470da3', color: '#470da3'}} onClick={(e) => setEditSkillsInProgress(() => !editSkillsInProgress)}>
-          {editSkillsInProgress ? <div onClick={() => handleUpdate('Skills')}>Update Skills</div> : "Edit Skills"}
-        </Button>
-        <br/>
-        <br/>
         {editSkillsInProgress && 
           <Autocomplete
           multiple

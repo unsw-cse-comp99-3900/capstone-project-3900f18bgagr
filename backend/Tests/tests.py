@@ -46,6 +46,7 @@ class TestClass:
             os.remove(DB_PATH)
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
+        cursor.execute('DROP TABLE IF EXISTS accounts')
         cursor.execute('''
             CREATE TABLE accounts (
                 id TEXT PRIMARY KEY,
@@ -58,6 +59,7 @@ class TestClass:
                 resetCode TEXT
             )
         ''')
+        cursor.execute('''DROP TABLE IF EXISTS career_path''')
         cursor.execute('''
             CREATE TABLE career_path (
                 job_title TEXT,
@@ -118,7 +120,7 @@ class TestClass:
         data = response.json()
         assert "Password is not secure" in data["Error"]
 
-    def test_login_success(self):
+    def test_logzin_success(self):
         """Test login success."""
         self.reset_database()
         response = requests.post(f"{URL}/register", json=self.user_payload, timeout=TIMEOUT)

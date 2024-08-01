@@ -1,6 +1,6 @@
 /*eslint no-warning-comments: "error"*/
 import React, {useState, useEffect} from 'react';
-import { Grid, Typography, Button } from '@mui/material';
+import { Grid, Typography, Button, Paper } from '@mui/material';
 import NavigationBar from '../Navigation/NavigationBar';
 import ExploreGraduateCareerPaths from './ExploreGraduateCareerPaths';
 import MyPersonalizedCareerPlan from './MyPersonalizedCareerPlan';
@@ -122,15 +122,6 @@ const DashboardPage = (props) => {
           </Grid>
         </Grid>
       </div>
-      <div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
-                <ImageComponent endpoint="top_jobs_us" altText="Top 10 US Jobs" />
-                <ImageComponent endpoint="top_jobs_uk" altText="Top 10 UK Jobs" />
-                <ImageComponent endpoint="top_jobs_aus" altText="Top 10 AUS Jobs" />
-                <ImageComponent endpoint="process_duration" altText="Process Duration" />
-                <ImageComponent endpoint="job_types" altText="Job Types" />
-            </div>
-        </div>
       <div style={{height: '10%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
         <Footer />
       </div>

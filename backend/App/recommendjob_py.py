@@ -36,12 +36,25 @@ def recommend_jobs(skills, experience_role, experience_years):
 
     df['similarity'] = sim_scores
 
+    # Adjust Pandas display options to show the entire DataFrame
+    pd.set_option('display.max_rows', None)  # Show all rows
+    pd.set_option('display.max_columns', None)  # Show all columns
+    pd.set_option('display.width', None)  # Auto-detect width
+
+    print(df)
+    print('GOT HEHREHRHEHERHERHE')
+    print(experience_role)
+    print(experience_years)
+    df['experience_years'] = df['experience_years'].astype(int)
     recommendations = df[
-        (df['experience_role'].apply(lambda x: experience_role in x.split(', ') if x else True)) &
-        (df['experience_years'] <= experience_years)
+        # (df["experience_role"].apply(lambda x: x not in experience_role if x else False)) &
+        (df['experience_years'] >= experience_years)
         ]
 
-    recommendations = recommendations.sort_values(by='similarity', ascending=False).head(10)
+    print("RECOMMENDATIONS \n")
+    print(recommendations)
+
+    recommendations = recommendations.sort_values(by='similarity', ascending=False)
 
     results = []
     for idx, row in recommendations.iterrows():
@@ -63,19 +76,8 @@ def recommend_jobs(skills, experience_role, experience_years):
             seen_titles.add(rec['job_title'])
             unique_results.append(rec)
 
+    print(unique_results)
     return unique_results
-
-
-user_skills = ['Communication', 'Teamwork', 'Adaptability', 'Creativity', 'Efficiency', 'Leadership', 'Python', 'Java']
-experience_role = None
-experience_years = 1
-
-# recommendations = recommend_jobs(user_skills, experience_role, experience_years)
-# for rec in recommendations:
-#     print(rec)
-
-
-# In[3]:
 
 
 def generate_career_paths(skills, job_title, job_level, df, path=[], visited_jobs=set()):

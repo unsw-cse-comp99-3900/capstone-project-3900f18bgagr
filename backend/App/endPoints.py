@@ -25,6 +25,7 @@ from string import ascii_letters, digits
 import os, re, sqlite3
 import pylint
 
+from recommendjob_py import load_data, generate_all_career_paths_for_recommendations, recommend_jobs
 
 app = Flask(__name__)
 api = Api(app,
@@ -148,6 +149,7 @@ def createDatabase(dbFile):
                 lastName TEXT,
                 password TEXT,
                 skills TEXT,
+                experience TEXT,
                 token TEXT,
                 resetCode TEXT)
                 ''')
@@ -238,7 +240,8 @@ edit_detail_model = api.model('Edit_detail',  {
     'id': fields.String(required=True, description='Username'),
     'firstName': fields.String(description='First Name'),
     'lastName': fields.String(description='Last Name'),
-    'skills': fields.List(fields.String, description='List of skills')
+    'skills': fields.List(fields.String, description='List of skills'),
+    'experience': fields.List(fields.String, description='String (role-year) e.g. "SWE-1,Data Analyst-3"')
 })
 
 @api.route('/register')
@@ -367,13 +370,14 @@ class userDetails(Resource):
                 if len(userDetails) > 0:
                     print(userDetails[5], 'skills')
                     return {
-                        'id': userDetails[0],
-                        'email': userDetails[1],
-                        'firstName': userDetails[2],
-                        'lastName': userDetails[3],
-                        'password': userDetails[4],
-                        'skills': userDetails[5]
-                    }, 200
+                               'id': userDetails[0],
+                               'email': userDetails[1],
+                               'firstName': userDetails[2],
+                               'lastName': userDetails[3],
+                               'password': userDetails[4],
+                               'skills': userDetails[5],
+                               'experience': userDetails[6]
+                           }, 200
                 else:
                     print("User Details not found")
             else:
@@ -424,8 +428,10 @@ class Edit_detail(Resource):
             new_firstName = data.get('firstName')
             new_lastName = data.get('lastName')
             new_skills = data.get('skills')
+            new_experience = data.get('experience')
 
             userDetails = getUserDetails(user_id, None)
+            print(f'EXPERIENCE: {new_experience}')
 
             if userDetails and user_id == userDetails[0]:
                 update_fields = {}
@@ -437,6 +443,8 @@ class Edit_detail(Resource):
                     update_fields['skills'] = new_skills
                 if new_password:
                     update_fields['password'] = new_password
+                if new_experience:
+                    update_fields['experience'] = new_experience
 
                 print('PASS')
                 if update_fields:
@@ -458,6 +466,144 @@ class Edit_detail(Resource):
 
         except Exception as e:
             return {"Error": "An error occurred during detail edit", "error": str(e)}, 500
+        
+        # Helper function to encode images to base64
+def encode_binary_to_base64(binary):
+    return "data:image/png;base64,"+base64.b64encode(binary).decode('utf-8')
+
+@api.route('/top_jobs_us')
+class TopJobs(Resource):
+    @api.response(200, 'OK')
+    def get(self):
+        # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_us_jobs.png'), "rb").read().encode("base64")}
+        return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_us_jobs.png'), "rb").read())}
+    
+@api.route('/top_jobs_uk')
+class TopJobsUK(Resource):
+    @api.response(200, 'OK')
+    def get(self):
+        # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_uk_jobs.png'), "rb").read().encode("base64")}
+        return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_uk_jobs.png'), "rb").read())}
+    
+@api.route('/top_jobs_aus')
+class TopJobsAUS(Resource):
+    @api.response(200, 'OK')
+    def get(self):
+        # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_aus_jobs.png'), "rb").read().encode("base64")}
+        return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'top_10_aus_jobs.png'), "rb").read())}
+    
+@api.route('/process_duration')
+class ProcessDuration(Resource):
+    @api.response(200, 'OK')
+    def get(self):
+        # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'process_duration.png'), "rb").read().encode("base64")} 
+        return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'process_duration.png'), "rb").read())}
+    
+@api.route('/job_types')
+class JobTypes(Resource):
+    @api.response(200, 'OK')
+    def get(self):
+        # return {"image": "data:image/png;base64," + open(os.path.join(os.path.dirname(__file__),'figs', 'job_types.png'), "rb").read().encode("base64")}
+        return {"image": encode_binary_to_base64(open(os.path.join(os.path.dirname(__file__),'figs', 'job_types.png'), "rb").read())}
+
+def params_null(value):
+    if value == '':
+        return None
+    return value
+
+
+@api.route('/get_path_data')
+class GetPathData(Resource):
+    @api.response(200, 'Logout successful')
+    @api.response(401, 'Logout fail')
+    def post(self):
+        try:
+            # data = request.json
+            print('called')
+            data = request.get_json()
+            user_skills = data['user_skills']
+            experience_role = data['experience_role']
+            experience_years = data['experience_years']
+            if experience_years:
+                experience_years = sum(int(x) for x in experience_years)
+            
+            # pre-fill
+            if len(experience_role) <= 0 and len(experience_years) <= 0:
+                experience_role = ['']
+                experience_years = 0
+
+            # print(experience_role)
+            # print(experience_years)
+            df = load_data()
+            recommendations = recommend_jobs(user_skills, experience_role, experience_years)
+            all_career_paths = generate_all_career_paths_for_recommendations(user_skills, recommendations, df)
+            name_arr = []
+            job_title_arr = []
+            title_skills_arr = []
+            print(all_career_paths)
+            for path in all_career_paths:
+                for index, value in enumerate(path):
+                    # print("path", path)
+                    union_title = value['job_level'] + ' ' + value['job_title']
+                    if union_title not in name_arr:
+                        name_arr.append(union_title)
+                        title_skills_dict = {}
+                        title_skills_dict['title'] = union_title
+                        title_skills_dict['skillsTicked'] = value['skillsTicked']
+                        title_skills_dict['skillsNotMet'] = value['skillsNotMet']
+                        title_skills_dict['experienceYears'] = value['experience_years']
+                        title_skills_arr.append(title_skills_dict)
+
+            for index, job_title in enumerate(name_arr):
+                job_obj = {}
+                job_obj['name'] = job_title
+                job_obj['node'] = index
+                job_title_arr.append(job_obj)
+            # print(job_title_arr)
+
+            job_links_arr = []
+            for path in all_career_paths:
+                top_node = None
+                node_list = []
+                for index, value in enumerate(path):
+                    node = None
+                    links_obj = {}
+                    top_title = value['job_level'] + ' ' + value['job_title']
+                    for title in job_title_arr:
+                        if title['name'] == top_title:
+                            node = title['node']
+                            node_list.append(node)
+                    # if index == 0:
+                    #     top_node = node
+                    # else:
+                    #     links_obj['source'] = top_node
+                    #     links_obj['target'] = node
+                    #     links_obj['value'] = 2000
+                    #     job_links_arr.append(links_obj)
+                    if index > 0:
+                        links_obj['source'] = node_list[index - 1]
+                        links_obj['target'] = node_list[index]
+                        links_obj['value'] = 2000
+                        job_links_arr.append(links_obj)
+            # print(job_links_arr)
+            all_obj = {}
+            all_obj['nodes'] = job_title_arr
+            all_obj['links'] = job_links_arr
+            for j in job_title_arr:
+                for s in title_skills_arr:
+                    if j['name'] == s['title']:
+                        j['skillsTicked'] = s['skillsTicked']
+                        j['skillsNotMet'] = s['skillsNotMet']
+                        j['experienceYears'] = s['experienceYears']
+            print()
+            print()
+            print()
+            print(all_obj)
+            return jsonify(all_obj)
+
+        except Exception as e:
+            return {"message": "An error occurred in logout", "error": str(e)}, 500
+
 
 if __name__ == '__main__':
     createDatabase(dbFile)

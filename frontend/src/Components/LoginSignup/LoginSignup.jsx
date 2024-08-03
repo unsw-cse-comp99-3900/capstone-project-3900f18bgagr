@@ -3,13 +3,13 @@ import './LoginSignup.css';
 import { Button } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
-import user_icon from '../Assets/person.png';
-import email_icon from '../Assets/email.png';
-import password_icon from '../Assets/password.png';
 import { useNavigate } from 'react-router-dom';
+import userIcon from '../Assets/person.png';
+import emailIcon from '../Assets/email.png';
+import passwordIcon from '../Assets/password.png';
 import NavigationBar from '../Navigation/NavigationBar';
 
-const LoginSignup = (props) => {
+function LoginSignup(props) {
   const navigate = useNavigate();
   const [action, setAction] = useState('Login');
   const [loginEmail, setLoginEmail] = useState('');
@@ -21,6 +21,10 @@ const LoginSignup = (props) => {
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('');
   const [alertError, setAlertError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const alertErrorFn = () => {
+    setAlertError(true);
+  };
 
   const signUp = async () => {
     const response = await fetch('http://localhost:5000/register', {
@@ -84,10 +88,6 @@ const LoginSignup = (props) => {
     }
   };
 
-  const alertErrorFn = () => {
-    setAlertError(true);
-  };
-
   return (
     <div
       style={{
@@ -128,7 +128,7 @@ const LoginSignup = (props) => {
             {action === 'Login' ? (
               <>
                 <div className="input">
-                  <img src={email_icon} alt="" />
+                  <img src={emailIcon} alt="" />
                   <input
                     type="email"
                     placeholder="Email"
@@ -138,7 +138,7 @@ const LoginSignup = (props) => {
                   />
                 </div>
                 <div className="input">
-                  <img src={password_icon} alt="" />
+                  <img src={passwordIcon} alt="" />
                   <input
                     type="password"
                     placeholder="Password"
@@ -151,7 +151,7 @@ const LoginSignup = (props) => {
             ) : (
               <>
                 <div className="input">
-                  <img src={email_icon} alt="" />
+                  <img src={emailIcon} alt="" />
                   <input
                     type="email"
                     placeholder="Email"
@@ -161,7 +161,7 @@ const LoginSignup = (props) => {
                   />
                 </div>
                 <div className="input">
-                  <img src={user_icon} alt="" />
+                  <img src={userIcon} alt="" />
                   <input
                     type="text"
                     placeholder="First Name"
@@ -171,7 +171,7 @@ const LoginSignup = (props) => {
                   />
                 </div>
                 <div className="input">
-                  <img src={user_icon} alt="" />
+                  <img src={userIcon} alt="" />
                   <input
                     type="text"
                     placeholder="Last Name"
@@ -181,7 +181,7 @@ const LoginSignup = (props) => {
                   />
                 </div>
                 <div className="input">
-                  <img src={password_icon} alt="" />
+                  <img src={passwordIcon} alt="" />
                   <input
                     type="password"
                     placeholder="Password"
@@ -191,7 +191,7 @@ const LoginSignup = (props) => {
                   />
                 </div>
                 <div className="input">
-                  <img src={password_icon} alt="" />
+                  <img src={passwordIcon} alt="" />
                   <input
                     type="password"
                     placeholder="Confirm Password"
@@ -252,6 +252,6 @@ const LoginSignup = (props) => {
       </div>
     </div>
   );
-};
+}
 
 export default LoginSignup;

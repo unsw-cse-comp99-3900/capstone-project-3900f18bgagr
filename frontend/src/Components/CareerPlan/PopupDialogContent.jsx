@@ -1,17 +1,16 @@
 import React from 'react';
-import { Grid, Box, Typography, Button } from '@mui/material';
 import {
+  Grid,
+  Box,
+  Typography,
+  Button,
   Autocomplete,
   TextField,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
 } from '@mui/material';
 
 import { RectangleList } from './RectangleList';
 
-export const PopupDialogContent = ({
+export function PopupDialogContent({
   all,
   cachedKeyword,
   setCachedKeyword,
@@ -19,7 +18,7 @@ export const PopupDialogContent = ({
   setKeyword,
   cachedSelected,
   setCachedSelected,
-}) => {
+}) {
   return (
     <Grid
       container
@@ -42,7 +41,7 @@ export const PopupDialogContent = ({
                 addToOther={(value) =>
                   setCachedSelected(cachedSelected.filter((v) => v !== value))
                 }
-              ></RectangleList>
+              />
             </Box>
           </Grid>
         </Grid>
@@ -65,6 +64,7 @@ export const PopupDialogContent = ({
                 }}
                 renderInput={(params) => (
                   <TextField
+                    // eslint-disable-next-line react/jsx-props-no-spreading
                     {...params}
                     label="Keyword"
                     InputProps={{
@@ -73,7 +73,7 @@ export const PopupDialogContent = ({
                     }}
                   />
                 )}
-              ></Autocomplete>
+              />
             </Box>
           </Grid>
           <Grid item xs={4}>
@@ -99,11 +99,11 @@ export const PopupDialogContent = ({
                 addToOther={(value) =>
                   setCachedSelected([...cachedSelected, value])
                 }
-              ></RectangleList>
+              />
             </Box>
           </Grid>
         </Grid>
       </Grid>
     </Grid>
   );
-};
+}

@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
-import { ImageList, ImageListItem } from '@mui/material';
+import { Box, Typography, ImageList, ImageListItem } from '@mui/material';
 
-export const RectangleList = ({ values, addToOther, keyword }) => {
+export function RectangleList({ values, addToOther, keyword }) {
   const filteredValues = values.filter(
     (value) =>
       !keyword ||
@@ -37,4 +36,4 @@ export const RectangleList = ({ values, addToOther, keyword }) => {
       ))}
     </ImageList>
   );
-};
+}

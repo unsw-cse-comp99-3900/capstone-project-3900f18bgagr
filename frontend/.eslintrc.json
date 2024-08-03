@@ -24,7 +24,10 @@
       "import/prefer-default-export": "off",
       "react/prop-types": "off",
       "prettier/prettier": "error",
-      "endOfLine": "off"
+      "endOfLine": "off",
+      "react/function-component-definition": "off",
+      "react/destructuring-assignment": "off"
+
     }
   }
   

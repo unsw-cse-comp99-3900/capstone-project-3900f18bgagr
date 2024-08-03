@@ -1,7 +1,20 @@
+/* eslint-disable react/jsx-props-no-spreading */
+/* eslint-disable no-shadow */
+/* eslint-disable no-console */
+/* eslint-disable dot-notation */
+/* eslint-disable react/destructuring-assignment */
 import React, { useEffect } from 'react';
-import { Grid, Box, Typography, Button } from '@mui/material';
+import {
+  Grid,
+  Box,
+  Typography,
+  Button,
+  List,
+  Autocomplete,
+  TextField,
+  CircularProgress,
+} from '@mui/material';
 import NavigationBar from '../Navigation/NavigationBar';
-import { List, Autocomplete, TextField, CircularProgress } from '@mui/material';
 
 import { InputListItem } from './InputListItem';
 import { SquareList } from './SquareList';
@@ -10,7 +23,7 @@ import CareerPlanSankey from './Sankey';
 import { SkillsList } from '../Assets/skillsList';
 // import Footer from '../Footer/Footer'
 
-const CareerPlan = (props) => {
+function CareerPlan(props) {
   // const roles = [
   //   "Software Engineer",
   //   "Data Scientist",
@@ -59,7 +72,7 @@ const CareerPlan = (props) => {
   }, [experiences]);
 
   const handleUpdate = async () => {
-    let exp = experiences.map((e) => `${e['as']}-${e['for']}`).join(',');
+    const exp = experiences.map((e) => `${e.as}-${e['for']}`).join(',');
     try {
       // for (let i = 0; i < experiences.length; i++) {
       //     const expRole = experiences[i].as;
@@ -81,8 +94,8 @@ const CareerPlan = (props) => {
 
       const response = await fetch('http://localhost:5000/Edit_detail', {
         method: 'PATCH',
-        body: body,
-        headers: headers,
+        body,
+        headers,
       });
 
       const data = await response.json();
@@ -205,7 +218,7 @@ const CareerPlan = (props) => {
   return (
     <div style={{ height: '98vh', boxSizing: 'border-box' }}>
       <div style={{ height: '10%', margin: '-8px' }}>
-        <NavigationBar homeButton={true} />
+        <NavigationBar homeButton />
       </div>
       <div style={{ height: '80%' }}>
         <Box sx={{ p: 2 }}>
@@ -214,7 +227,7 @@ const CareerPlan = (props) => {
             setOpen={setLanguageDialogOpen}
             selected={selectedLanguages}
             all={allLanguages}
-            title={'Select Skills'}
+            title="Select Skills"
             setSelected={setSelectedLanguages}
           />
 
@@ -255,6 +268,7 @@ const CareerPlan = (props) => {
                             removeValue={(index) => {
                               setExperience(
                                 experiences.filter(
+                                  // eslint-disable-next-line radix
                                   (v, i) => i !== parseInt(index),
                                 ),
                               );
@@ -388,11 +402,11 @@ const CareerPlan = (props) => {
           )}
         </Box>
       </div>
-      {/*<div style={{height: '10%', display: 'flex'}}>*/}
-      {/*    <Footer/>*/}
-      {/*</div>*/}
+      {/* <div style={{height: '10%', display: 'flex'}}> */}
+      {/*    <Footer/> */}
+      {/* </div> */}
     </div>
   );
-};
+}
 
 export default CareerPlan;

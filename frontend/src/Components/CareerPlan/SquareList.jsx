@@ -1,10 +1,8 @@
 import React from 'react';
-import { Box, Typography } from '@mui/material';
-import { ImageList, ImageListItem } from '@mui/material';
-
+import { Box, Typography, ImageList, ImageListItem } from '@mui/material';
 import { Add as AddIcon } from '@mui/icons-material';
 
-export const SquareList = ({ values, setValues, setOpen }) => {
+export function SquareList({ values, setOpen }) {
   return (
     <ImageList sx={{ width: '100%', height: '100%' }} cols={5}>
       <ImageListItem>
@@ -50,4 +48,4 @@ export const SquareList = ({ values, setValues, setOpen }) => {
       ))}
     </ImageList>
   );
-};
+}

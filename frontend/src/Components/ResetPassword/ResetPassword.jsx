@@ -66,7 +66,7 @@ const ResetPassword = (props) => {
       >
         <NavigationBar homeButton={true} />
       </div>
-      <div className="container" stlye={{ height: '80%' }}>
+      <div className="container">
         {alertError && (
           <Alert severity="error">
             <AlertTitle>

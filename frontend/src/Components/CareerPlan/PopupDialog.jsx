@@ -1,26 +1,22 @@
 import React from 'react';
-import { Grid, Box, Typography, Button } from '@mui/material';
 import {
-  Autocomplete,
-  TextField,
+  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
 } from '@mui/material';
 
-import { RectangleList } from './RectangleList';
-
 import { PopupDialogContent } from './PopupDialogContent';
 
-export const PopupDialog = ({
+export function PopupDialog({
   open,
   setOpen,
   selected,
   all,
   setSelected,
   title,
-}) => {
+}) {
   const [cachedKeyword, setCachedKeyword] = React.useState('');
 
   const [keyword, setKeyword] = React.useState('');
@@ -39,7 +35,7 @@ export const PopupDialog = ({
           setKeyword={setKeyword}
           cachedSelected={cachedSelected}
           setCachedSelected={setCachedSelected}
-        ></PopupDialogContent>
+        />
       </DialogContent>
       <DialogActions>
         <Button
@@ -61,4 +57,4 @@ export const PopupDialog = ({
       </DialogActions>
     </Dialog>
   );
-};
+}

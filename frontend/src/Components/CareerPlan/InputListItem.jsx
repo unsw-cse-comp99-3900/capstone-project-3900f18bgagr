@@ -1,10 +1,15 @@
 import React from 'react';
-import { Box } from '@mui/material';
-import { ListItem, IconButton, Autocomplete, TextField } from '@mui/material';
+import {
+  Box,
+  ListItem,
+  IconButton,
+  Autocomplete,
+  TextField,
+} from '@mui/material';
 
 import { Close as DeleteIcon } from '@mui/icons-material';
 
-export const InputListItem = ({ options, value, removeValue, index }) => {
+export function InputListItem({ options, value, removeValue, index }) {
   return (
     <ListItem
       fullWidth
@@ -29,6 +34,7 @@ export const InputListItem = ({ options, value, removeValue, index }) => {
         defaultValue={value.as}
         renderInput={(params) => (
           <TextField
+            // eslint-disable-next-line react/jsx-props-no-spreading
             {...params}
             label="As"
             fullWidth
@@ -46,9 +52,10 @@ export const InputListItem = ({ options, value, removeValue, index }) => {
         disableClearable
         disabled
         options={options.map((option) => option.for)}
-        defaultValue={value.for + 'years'}
+        defaultValue={`${value.for}years`}
         renderInput={(params) => (
           <TextField
+            // eslint-disable-next-line react/jsx-props-no-spreading
             {...params}
             label="For"
             InputProps={{
@@ -60,4 +67,4 @@ export const InputListItem = ({ options, value, removeValue, index }) => {
       />
     </ListItem>
   );
-};
+}

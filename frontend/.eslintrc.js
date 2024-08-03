@@ -23,6 +23,6 @@ module.exports = {
     'react/prop-types': 'off',
     'react/function-component-definition': 'off',
     'react/destructuring-assignment': 'off',
-    // 'prettier/prettier': ['error', { endOfLine: 'auto' }],
+    'prettier/prettier': ['error', { endOfLine: 'auto' }],
   },
 };

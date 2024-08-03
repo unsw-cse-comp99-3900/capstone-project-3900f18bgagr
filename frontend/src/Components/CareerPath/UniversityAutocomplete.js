@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-props-no-spreading */
 import React, { useState } from 'react';
 import { Autocomplete, TextField } from '@mui/material';
 
@@ -22,25 +23,27 @@ const universities = [
   'Griffith University',
   'University of Newcastle',
   'University of Tasmania',
-  'La Trobe University'
+  'La Trobe University',
 ];
 
-const UniversityAutocomplete = () => {
-    const [value, setValue] = useState(null);
+function UniversityAutocomplete() {
+  const [value, setValue] = useState(null);
 
-    const sortedUniversities = universities.sort();
+  const sortedUniversities = universities.sort();
 
-    return (
-      <Autocomplete
-        value={value}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-        }}
-        options={sortedUniversities}
-        renderInput={(params) => <TextField {...params} label="Start Typing University Name" />}
-        fullWidth
-      />
-    );
-  };
+  return (
+    <Autocomplete
+      value={value}
+      onChange={(event, newValue) => {
+        setValue(newValue);
+      }}
+      options={sortedUniversities}
+      renderInput={(params) => (
+        <TextField {...params} label="Start Typing University Name" />
+      )}
+      fullWidth
+    />
+  );
+}
 
-  export default UniversityAutocomplete;
+export default UniversityAutocomplete;

@@ -1,12 +1,12 @@
-import React from "react";
-import { Grid, Box, Typography, Button } from "@mui/material";
+import React from 'react';
+import { Grid, Box, Typography, Button } from '@mui/material';
 
-import { PopupDialogContent } from "./PopupDialogContent";
+import { PopupDialogContent } from './PopupDialogContent';
 
 export const ContinuePanel = ({ selected, all, setSelected, title }) => {
-  const [cachedKeyword, setCachedKeyword] = React.useState("");
+  const [cachedKeyword, setCachedKeyword] = React.useState('');
 
-  const [keyword, setKeyword] = React.useState("");
+  const [keyword, setKeyword] = React.useState('');
 
   const [cachedSelected, setCachedSelected] = React.useState(selected);
 
@@ -31,8 +31,8 @@ export const ContinuePanel = ({ selected, all, setSelected, title }) => {
       <Grid item xs={8} />
       <Grid item xs={2}>
         <Button
-          variant='outlined'
-          color='secondary'        
+          variant="outlined"
+          color="secondary"
           onClick={() => {
             setCachedSelected(selected);
           }}
@@ -42,8 +42,8 @@ export const ContinuePanel = ({ selected, all, setSelected, title }) => {
       </Grid>
       <Grid item xs={2}>
         <Button
-          variant='outlined'
-          color='secondary'
+          variant="outlined"
+          color="secondary"
           onClick={() => {
             setSelected(cachedSelected);
           }}

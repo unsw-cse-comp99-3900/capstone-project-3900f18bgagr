@@ -1,8 +1,8 @@
-import React from "react";
-import { Box } from "@mui/material";
-import { ListItem, IconButton, Autocomplete, TextField } from "@mui/material";
+import React from 'react';
+import { Box } from '@mui/material';
+import { ListItem, IconButton, Autocomplete, TextField } from '@mui/material';
 
-import { Close as DeleteIcon } from "@mui/icons-material";
+import { Close as DeleteIcon } from '@mui/icons-material';
 
 export const InputListItem = ({ options, value, removeValue, index }) => {
   return (
@@ -34,7 +34,7 @@ export const InputListItem = ({ options, value, removeValue, index }) => {
             fullWidth
             InputProps={{
               ...params.InputProps,
-              type: "search",
+              type: 'search',
             }}
           />
         )}
@@ -46,14 +46,14 @@ export const InputListItem = ({ options, value, removeValue, index }) => {
         disableClearable
         disabled
         options={options.map((option) => option.for)}
-        defaultValue={value.for + "years"}
+        defaultValue={value.for + 'years'}
         renderInput={(params) => (
           <TextField
             {...params}
             label="For"
             InputProps={{
               ...params.InputProps,
-              type: "search",
+              type: 'search',
             }}
           />
         )}

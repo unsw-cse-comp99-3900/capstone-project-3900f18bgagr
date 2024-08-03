@@ -6,6 +6,7 @@
 4. Run the following command to start the application using Docker Compose:
    ```bash
    docker-compose up
+5. Open your web browser and go to `http://localhost:3333/`
 
 ## Background
 

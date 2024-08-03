@@ -95,6 +95,7 @@ function DashboardPage(props) {
             setEmail={setEmail}
             setToken={props.setToken}
             setUserId={props.setUserId}
+            setUserPassword={props.setUserPassword}
           />
         ) : (
           <NavigationBar homeButton={false} />

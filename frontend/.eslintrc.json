@@ -23,7 +23,8 @@
       "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
       "import/prefer-default-export": "off",
       "react/prop-types": "off",
-      "prettier/prettier": "error"
+      "prettier/prettier": "error",
+      "endOfLine": "off"
     }
   }
   

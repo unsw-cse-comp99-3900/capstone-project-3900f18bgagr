@@ -3,8 +3,8 @@ module.exports = {
     'airbnb',
     'plugin:react/recommended',
     'plugin:react-hooks/recommended',
-    'prettier', // Ensures Prettier rules are applied
-    'plugin:prettier/recommended' // Integrates Prettier with ESLint
+    'prettier', // Ensure Prettier rules are applied
+    'plugin:prettier/recommended', // Integrates Prettier with ESLint
   ],
   plugins: ['react', 'react-hooks', 'import', 'jsx-a11y', 'prettier'],
   env: {
@@ -22,7 +22,7 @@ module.exports = {
   rules: {
     'react/jsx-filename-extension': [1, { extensions: ['.js', '.jsx'] }],
     'import/prefer-default-export': 'off',
-    'react/prop-types': 'off', // Turn off if not using PropTypes
-    'prettier/prettier': 'error', // Ensure Prettier errors are shown
+    'react/prop-types': 'off',
+    // 'prettier/prettier': ['error', { endOfLine: 'auto' }],
   },
 };

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './LoginSignup.css';
-import { AppBar, Toolbar, Typography, IconButton, Button } from '@mui/material';
+import { Button } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import AlertTitle from '@mui/material/AlertTitle';
 import user_icon from '../Assets/person.png';
@@ -21,7 +21,6 @@ const LoginSignup = (props) => {
   const [signUpConfirmPassword, setSignUpConfirmPassword] = useState('');
   const [alertError, setAlertError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [errorHeader, setErrorHeader] = useState('');
 
   const signUp = async () => {
     const response = await fetch('http://localhost:5000/register', {
@@ -44,6 +43,7 @@ const LoginSignup = (props) => {
     } else {
       props.setToken(data.token);
       props.setUserId(data.id);
+      props.setUserPassword(signUpPassword)
       localStorage.setItem('token', data.token);
       localStorage.setItem('id', data.id);
       navigate('/');
@@ -68,6 +68,7 @@ const LoginSignup = (props) => {
     } else {
       props.setToken(data.token);
       props.setUserId(data.id);
+      props.setUserPassword(loginPassword)
       localStorage.setItem('token', data.token);
       localStorage.setItem('id', data.id);
       navigate('/');
@@ -81,22 +82,6 @@ const LoginSignup = (props) => {
     } else if (action === 'SignUp') {
       signUp();
     }
-  };
-
-  const validatePassword = (password) => {
-    if (password.length < 8) {
-      return false;
-    }
-    if (!/[a-z]/.test(password)) {
-      return false;
-    }
-    if (!/[A-Z]/.test(password)) {
-      return false;
-    }
-    if (!/[0-9]/.test(password)) {
-      return false;
-    }
-    return true;
   };
 
   const alertErrorFn = () => {
@@ -209,7 +194,7 @@ const LoginSignup = (props) => {
             <div className={action === 'SignUp' ? 'submit gray scale' : 'submit'} onClick={() => { setAction('Login'); setAlertError(false); }}>Login</div>
           </div>
           <div className="scale" style={{ display: 'flex', justifyContent: 'center' }}>
-            <Button type="submit" variant='contained' className="submit gray scale" style={{ background: '#3c009d', width: '100%', padding: '10px', width: '50%', scale: '1.2', borderRadius: '70px' }}>
+            <Button type="submit" variant='contained' className="submit gray scale" style={{ background: '#3c009d', padding: '10px', width: '50%', scale: '1.2', borderRadius: '70px' }}>
               Submit
             </Button>
           </div>

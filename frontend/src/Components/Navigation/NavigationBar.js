@@ -18,6 +18,7 @@ const NavigationBar = (props) => {
     props.setToken("");
     props.setUserId("");
     props.setEmail("")
+    props.setUserPassword("")
     localStorage.removeItem("token");
     localStorage.removeItem("id");
     navigate("/loginSignUp");

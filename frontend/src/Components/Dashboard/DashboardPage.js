@@ -1,15 +1,13 @@
 /*eslint no-warning-comments: "error"*/
 import React, {useState, useEffect} from 'react';
-import { Grid, Typography, Button, Paper } from '@mui/material';
+import { Grid, Typography, Button } from '@mui/material';
 import NavigationBar from '../Navigation/NavigationBar';
 import ExploreGraduateCareerPaths from './ExploreGraduateCareerPaths';
 import MyPersonalizedCareerPlan from './MyPersonalizedCareerPlan';
 import CareerAdviceLinks from './CareerAdviceLinks';
 import Footer from '../Footer/Footer'
 import Profile from '../Profile/Profile'
-import Skills from '../Skills/Skills'
 import { useNavigate } from 'react-router-dom';
-import ImageComponent from './ImageComponent';
 import Box from '@mui/material/Box';
 import CircularProgress from '@mui/material/CircularProgress';
 
@@ -22,51 +20,49 @@ const DashboardPage = (props) => {
   const [password, setUserPassword] = useState("")
   const [userId, setUserId] = useState(false)
 
-  const getUserDetails = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/userDetails", {
-        method: "GET",
-        headers: {
-          "Content-type": "application/json",
-          Authorization: props.token,
-          'id': props.userId
-        },
-      });
-      if (!response.ok) {
-        console.log(`Error: Dashboard`);
-      } else {
-        const data = await response.json()
-        if (data.firstName !== null) {
-          setFirstName(data.firstName);
-        }
-        if (data.lastName !== null) {
-          setLastName(data.lastName);
-        }
-        if (data.email !== null) {
-          setEmail(data.email);
-        }
-        if (data.password !== null) {
-          setUserPassword(data.password);
-        }
-        if (data.skills.trim().length > 0) {
-          const parsedSkills = data.skills.split(',').map(skill => ({
-            title: skill.trim()
-          }));
-          setUserSkills(() => parsedSkills);
-          console.log('user skills:', userSkills)
-        }
-      }
-
-      console.log(email && firstName && lastName)
-    } catch (error) {
-      console.error("Error fetching user details:", error);
-      // Handle error state or alert the user
-    }
-  };
   
   useEffect(() => {
+    const getUserDetails = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/userDetails", {
+          method: "GET",
+          headers: {
+            "Content-type": "application/json",
+            Authorization: props.token,
+            'id': props.userId
+          },
+        });
+        if (!response.ok) {
+          console.log(`Error: Dashboard`);
+        } else {
+          const data = await response.json()
+          if (data.firstName !== null) {
+            setFirstName(data.firstName);
+          }
+          if (data.lastName !== null) {
+            setLastName(data.lastName);
+          }
+          if (data.email !== null) {
+            setEmail(data.email);
+          }
+          if (data.password !== null) {
+            setUserPassword(data.password);
+          }
+          if (data.skills.trim().length > 0) {
+            const parsedSkills = data.skills.split(',').map(skill => ({
+              title: skill.trim()
+            }));
+            setUserSkills(() => parsedSkills);
+            console.log('user skills:', userSkills)
+          }
+        }
+  
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+      }
+    };
     getUserDetails()
-  }, [props.token, props.userId])
+  }, [props.userId, props.token, userSkills])
 
   useEffect(() => {
     const checktoken = localStorage.getItem("token");
@@ -80,7 +76,7 @@ const DashboardPage = (props) => {
   return (
     <div style={{display: "flex", width: '100%', flexDirection: 'column', height: '98vh', margin: '-10px'}}>
       <div style={{margin: '0px', height: '10%', padding: '0px', boxSizing: 'border-box'}}>
-        {props.userId ? <NavigationBar homeButton={'logout'} setEmail={setEmail} setToken={props.setToken} setUserId={props.setUserId}/> : <NavigationBar homeButton={false} />}
+        {props.userId ? <NavigationBar homeButton={'logout'} setEmail={setEmail} setToken={props.setToken} setUserId={props.setUserId} setUserPassword={props.setUserPassword}/> : <NavigationBar homeButton={false} />}
       </div>
       <div style={{ padding: "20px", height: '80%'}}>
         <Grid container
@@ -92,7 +88,7 @@ const DashboardPage = (props) => {
         >
           {email && firstName && lastName &&
               <Grid item xs={5}>
-                <item><Profile password={password} setUserPassword={setUserPassword} firstName={firstName} setFirstName={setFirstName} lastName={lastName} setLastName={setLastName} email={email} setEmail={setEmail} userSkills={userSkills} setUserSkills={setUserSkills} userId={props.userId}/> </item>
+                <item><Profile password={password} dashSetUserPassword={setUserPassword} setUserPassword={props.setUserPassword} firstName={firstName} setFirstName={setFirstName} lastName={lastName} setLastName={setLastName} email={email} setEmail={setEmail} userSkills={userSkills} setUserSkills={setUserSkills} userId={props.userId}/> </item>
               </Grid>
           }
           {!userId && !email && !firstName && !lastName && 

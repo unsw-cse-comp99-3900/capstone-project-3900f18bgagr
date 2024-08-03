@@ -1,13 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import * as d3 from 'd3';
 import { sankey, sankeyLinkHorizontal, sankeyJustify } from 'd3-sankey';
-import { Box, Typography, Button, Grid } from "@mui/material";
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
-
-const handleSaveDiagram = () => {
-    alert('Diagram Saved');
-}
 
 const SankeyChart = ({ data }) => {
     const svgRef = useRef();
@@ -31,10 +26,6 @@ const SankeyChart = ({ data }) => {
             const color = d3.scaleOrdinal()
                 .domain(nodes.map(d => d.name))
                 .range(d3.schemeTableau10.concat(d3.schemeSet3));  // Extend color range
-
-            // Set default positions if not defined
-            const width = 960;
-            const height = 800;
 
             // Assign default x0, x1, y0, y1 values for nodes if not present
             nodes.forEach((node, i) => {
@@ -130,7 +121,7 @@ const SankeyChart = ({ data }) => {
     }, [data]);
 
     return (
-        <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
+        <div data-cy='sankey-chart' style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', flexDirection: 'column' }}>
             <Stack sx={{ width: '100%' }} spacing={2}>
                 <Alert severity="info">Hover over the darker vertical bars representing job titles to see more information.</Alert>
                 <br/>

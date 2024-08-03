@@ -8,7 +8,8 @@ export const SquareList = ({ values, setValues, setOpen }) => {
   return (
     <ImageList sx={{ width: "100%", height: "100%" }} cols={5}>
       <ImageListItem>
-        <Box
+        <Box 
+          data-cy="square-list"
           sx={{
             display: "flex",
             flexDirection: "column",
@@ -29,6 +30,7 @@ export const SquareList = ({ values, setValues, setOpen }) => {
       {values.map((item) => (
         <ImageListItem key={item}>
           <Box
+            data-cy="square-list"
             sx={{
               display: "flex",
               flexDirection: "column",

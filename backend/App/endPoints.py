@@ -416,7 +416,10 @@ class Edit_detail(Resource):
             data = request.json
             headers = request.headers
             user_id = headers['id']
-            new_password = headers['password']
+            print('===============')
+            if 'password' in headers:
+                new_password = headers['password']
+            print('=====')
             new_firstName = data.get('firstName')
             new_lastName = data.get('lastName')
             new_skills = data.get('skills')

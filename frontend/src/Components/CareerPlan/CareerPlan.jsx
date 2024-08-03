@@ -6,7 +6,6 @@ import {List, Autocomplete, TextField, CircularProgress} from "@mui/material";
 import {InputListItem} from "./InputListItem";
 import {SquareList} from "./SquareList";
 import {PopupDialog} from "./PopupDialog";
-import {ContinuePanel} from "./ContinuePanel";
 import CareerPlanSankey from "./Sankey";
 import { SkillsList } from "../Assets/skillsList";
 // import Footer from '../Footer/Footer'
@@ -74,8 +73,9 @@ const CareerPlan = (props) => {
             "Content-type": "application/json",
             Authorization: props.token,
             'id': props.userId,
-            'password': props.password,
+            'password': props.userPassword
           }
+          alert(`Pass: ${props.userPassword}`)
     
           const body = JSON.stringify({
             "skills": selectedLanguages.join(','),
@@ -90,7 +90,7 @@ const CareerPlan = (props) => {
           
           const data = await response.json()
           if (!response.ok) {
-            alert(data.response)
+            console.log(data.Error)
           } else {
             console.log('Skills successfully updated')
           }
@@ -179,6 +179,8 @@ const CareerPlan = (props) => {
           
         if (props.token) {
             getUserDetails()
+        } else{
+            setLoading(false)
         }
     }, [props.token, props.userId])
 

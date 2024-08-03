@@ -1,27 +1,19 @@
 import React, {useState} from 'react';
 import { Paper, Typography, Button } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Box from '@mui/material/Box';
 import Alert from '@mui/material/Alert';
-import AlertTitle from '@mui/material/AlertTitle';
 import { SkillsList } from '../Assets/skillsList';
 import Divider from '@mui/material/Divider';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
 import ListItemText from '@mui/material/ListItemText';
 import Modal from '@mui/material/Modal';
-import Backdrop from '@mui/material/Backdrop';
-import Fade from '@mui/material/Fade';
-import { Height } from '@mui/icons-material';
 
 
 const Profile = (props) => {
-  const navigate = useNavigate();
   const [editSkillsInProgress, setEditSkillsInProgress] = useState(false)
-  const [editDetailInProgress, setEditDetailInProgress] = useState(false)
-  const [editPassWordInProgress, setEditPasswordInProgress] = useState(false)
   const [newPassword, setNewPassword] = useState("")
   const [alertDetailsSuccess, setAlertDetailsSuccess] = useState(false)
   const [alertSkillsSuccess, setAlertSkillsSuccess] = useState(false)
@@ -88,6 +80,7 @@ const Profile = (props) => {
         alert(data.response)
       } else {
         props.setUserPassword(newPassword)
+        props.dashSetUserPassword(newPassword)
         setNewPassword(() => "")
       }
 

@@ -9,24 +9,24 @@ import Footer from '../Footer/Footer'
 const CareerPaths = () => {
   const data = {
     nodes: [
-        { name: "Total Graduates" },           // Node 0
-        { name: "Junior Developer" },          // Node 1
-        { name: "Junior Data Engineer" },      // Node 2
-        { name: "Junior AI Specialist" },      // Node 3
-        { name: "Junior Network Engineer" },   // Node 4
-        { name: "Software Engineer" },         // Node 5
-        { name: "Data Scientist" },            // Node 6
-        { name: "AI Research Scientist" },     // Node 7
-        { name: "System Administrator" },      // Node 8
-        { name: "Network Architect" },         // Node 9
-        { name: "Machine Learning Engineer" }, // Node 10
-        { name: "Computer Vision Engineer" },  // Node 11
-        { name: "Natural Language Processing Engineer" }, // Node 12
-        { name: "Robotics Engineer" },         // Node 13
-        { name: "Data Analyst" },              // Node 14
-        { name: "IT Support Specialist" },     // Node 15
-        { name: "Cybersecurity Analyst" },     // Node 16
-        { name: "Cloud Solutions Architect" }  // Node 17
+        { name: "Total Graduates" },
+        { name: "Junior Developer" },
+        { name: "Junior Data Engineer" },
+        { name: "Junior AI Specialist" },
+        { name: "Junior Network Engineer" },
+        { name: "Software Engineer" },
+        { name: "Data Scientist" },
+        { name: "AI Research Scientist" },
+        { name: "System Administrator" },
+        { name: "Network Architect" },
+        { name: "Machine Learning Engineer" },
+        { name: "Computer Vision Engineer" },
+        { name: "Natural Language Processing Engineer" },
+        { name: "Robotics Engineer" },
+        { name: "Data Analyst" },
+        { name: "IT Support Specialist" },
+        { name: "Cybersecurity Analyst" },
+        { name: "Cloud Solutions Architect" }
     ],
     links: [
         { source: 0, target: 1, value: 20000 },
@@ -51,25 +51,23 @@ const CareerPaths = () => {
     ]
   };
 
-
-
   return (
     <div style={{display: 'flex', width: '100%', flexDirection: 'column', height: '98vh', margin: -10}}>
       <div style={{margin: '0px', height: '10%', padding: '0px', boxSizing: 'border-box'}}>
-        <NavigationBar homeButton={true}/>
+        <NavigationBar homeButton={true} data-cy="navigation-bar"/>
       </div>
       <Box sx={{ p: 2 }} style={{height: '80%'}}>
         <Typography variant="h4" sx={{ mb: 2 }} style={{padding: '10px 0 0 10px', margin: 0}}>
           Explore Graduate Career Paths
         </Typography>
-        <SearchSection/>
+        <SearchSection data-cy="search-section"/>
         <div style={{display: 'flex', justifyContent: 'flex-start', alignItems: 'center'}}>
-          <CareerChart data={data}/>
+          <CareerChart data={data} data-cy="career-chart"/>
         </div>
-        <JobDetails />
+        <JobDetails data-cy="job-details"/>
       </Box>
       <div style={{height: '10%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-        <Footer />
+        <Footer data-cy="footer"/>
       </div>
     </div>
   );

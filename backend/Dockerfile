@@ -5,13 +5,16 @@ FROM python:3.10
 WORKDIR /app
 
 # Copy only requirements to leverage Docker cache
-COPY . /app
+COPY App/requirements.txt .
 
 # Install dependencies
-RUN pip install --no-cache-dir -r App/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application code
+COPY App/ .
 
 # Expose the port the app runs on
 EXPOSE 5000
 
 # Define the command to run the application
-CMD ["python", "App/endPoints.py"]
+CMD ["python", "endPoints.py"]

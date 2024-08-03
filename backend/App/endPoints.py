@@ -1,5 +1,6 @@
 from flask import Flask, request, send_file, jsonify
 from flask_restx import Resource, Api, fields, inputs, reqparse
+from job_analyze import analyze_jobs
 import json, os
 from pathlib import Path
 import sqlite3
@@ -609,5 +610,6 @@ class GetPathData(Resource):
 
 
 if __name__ == '__main__':
+    analyze_jobs()
     createDatabase(dbFile)
-    app.run(debug=True)
+    app.run()

@@ -1,5 +1,5 @@
-import React from "react";
-import { Grid, Box, Typography, Button } from "@mui/material";
+import React from 'react';
+import { Grid, Box, Typography, Button } from '@mui/material';
 import {
   Autocomplete,
   TextField,
@@ -7,9 +7,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-} from "@mui/material";
+} from '@mui/material';
 
-import { RectangleList } from "./RectangleList";
+import { RectangleList } from './RectangleList';
 
 export const PopupDialogContent = ({
   all,
@@ -59,8 +59,8 @@ export const PopupDialogContent = ({
                 defaultValue={cachedKeyword}
                 onInputChange={(event, newInputValue) => {
                   setCachedKeyword(newInputValue);
-                  if (newInputValue === "") {
-                    setKeyword("");
+                  if (newInputValue === '') {
+                    setKeyword('');
                   }
                 }}
                 renderInput={(params) => (
@@ -69,7 +69,7 @@ export const PopupDialogContent = ({
                     label="Keyword"
                     InputProps={{
                       ...params.InputProps,
-                      type: "search",
+                      type: 'search',
                     }}
                   />
                 )}
@@ -77,14 +77,13 @@ export const PopupDialogContent = ({
             </Box>
           </Grid>
           <Grid item xs={4}>
-            <Box sx={{ height: "100%" }}>
+            <Box sx={{ height: '100%' }}>
               <Button
                 variant="contained"
                 fullWidth
-                style={{backgroundColor: '#3c009d'}}
-
+                style={{ backgroundColor: '#3c009d' }}
                 sx={{
-                  height: "100%",
+                  height: '100%',
                 }}
                 onClick={() => setKeyword(cachedKeyword)}
               >

@@ -38,8 +38,8 @@ export default function BasicModal() {
             <input></input>
           </Typography>
           <div>
-          <button onClick={handleClose}>Cancel</button>
-          <button>Save</button>
+            <button onClick={handleClose}>Cancel</button>
+            <button>Save</button>
           </div>
         </Box>
       </Modal>

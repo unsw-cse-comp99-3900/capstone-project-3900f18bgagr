@@ -1,10 +1,10 @@
 import React from 'react';
 import { Dialog, DialogTitle, DialogContent, Typography } from '@mui/material';
 
-const JobDetails = ({ open, onClose, jobData }) => {
+function JobDetails({ open, onClose, jobData }) {
   // Ensure that jobData is defined before trying to access its properties
   if (!jobData) {
-    return null;  // Or some other placeholder if appropriate
+    return null; // Or some other placeholder if appropriate
   }
 
   return (
@@ -14,10 +14,12 @@ const JobDetails = ({ open, onClose, jobData }) => {
         {/* Check that jobData and its properties are defined before rendering them */}
         <Typography gutterBottom>Role: {jobData.role}</Typography>
         <Typography gutterBottom>Average Salary: {jobData.salary}</Typography>
-        <Typography>Requirements: {jobData.requirements?.join(", ")}</Typography>
+        <Typography>
+          Requirements: {jobData.requirements?.join(', ')}
+        </Typography>
       </DialogContent>
     </Dialog>
   );
-};
+}
 
 export default JobDetails;

@@ -1,27 +1,5 @@
-// import React from 'react';
-// import { Paper, Typography, Link, Button } from '@mui/material';
-
-// const CareerAdviceLinks = () => (
-//   <>
-    // <Button style={{backgroundColor: '#470da3', scale: '1.2', width: '100%', height: '50px'}} variant="contained">
-    //   Career Trends and Advice
-    // </Button>
-    // <Link href="https://www.forbes.com/sites/bernardmarr/2024/03/12/worried-an-ai-is-going-to-take-your-job-heres-how-to-stay-relevant-in-the-generative-ai-era/" target="_blank" style={{ display: 'block', marginBottom: '8px' }}>
-    //   How To Stay Relevant In The GenAI Era
-    // </Link>
-    // <Link href="https://www.comptia.org/blog/top-it-skills-in-demand" target="_blank" style={{ display: 'block', marginBottom: '8px' }}>
-    //   Top IT Skills in Demand in 2024
-    // </Link>
-    // <Link href="https://www.bloomberg.com/technology" target="_blank" style={{ display: 'block', marginBottom: '8px' }}>
-    //   Other News Article/Blog Post
-    // </Link>
-//   </>
-// );
-
-// export default CareerAdviceLinks;
-
 import * as React from 'react';
-import { Paper, Typography, Link, Button, Grid } from '@mui/material';
+import { Paper, Typography, Link, Button } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Dialog from '@mui/material/Dialog';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -50,8 +28,18 @@ export default function CareerAdviceLinks() {
   };
 
   return (
-    <React.Fragment>
-      <Button style={{backgroundColor: '#470da3', borderRadius: '15px', scale: '1.2', width: '100%', height: '50px'}} variant="contained"  onClick={handleClickOpen}>
+    <>
+      <Button
+        style={{
+          backgroundColor: '#470da3',
+          borderRadius: '15px',
+          scale: '1.2',
+          width: '100%',
+          height: '50px',
+        }}
+        variant="contained"
+        onClick={handleClickOpen}
+      >
         Career Trends and Advice
       </Button>
       <BootstrapDialog
@@ -76,40 +64,48 @@ export default function CareerAdviceLinks() {
         </IconButton>
         <DialogContent dividers>
           <Typography gutterBottom>
-            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-            dapibus ac facilisis in, egestas eget quam. Morbi leo risus, porta ac
-            consectetur ac, vestibulum at eros.
-            <Link href="https://www.forbes.com/sites/bernardmarr/2024/03/12/worried-an-ai-is-going-to-take-your-job-heres-how-to-stay-relevant-in-the-generative-ai-era/" target="_blank" style={{ display: 'block', marginBottom: '8px' }}>
+            Insert the headline of the article here.
+            <Link
+              href="https://www.forbes.com/sites/bernardmarr/2024/03/12/worried-an-ai-is-going-to-take-your-job-heres-how-to-stay-relevant-in-the-generative-ai-era/"
+              target="_blank"
+              style={{ display: 'block', marginBottom: '8px' }}
+            >
               How To Stay Relevant In The GenAI Era
             </Link>
           </Typography>
-          <br/> <br/>
+          <br /> <br />
           <Typography gutterBottom>
-            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-            dapibus ac facilisis in, egestas eget
-            <Link href="https://www.comptia.org/blog/top-it-skills-in-demand" target="_blank" style={{ display: 'block', marginBottom: '8px' }}>
+            Insert the headline of the article here.
+            <Link
+              href="https://www.comptia.org/blog/top-it-skills-in-demand"
+              target="_blank"
+              style={{ display: 'block', marginBottom: '8px' }}
+            >
               Top IT Skills in Demand in 2024
             </Link>
           </Typography>
-          <br/> <br/>
+          <br /> <br />
           <Typography gutterBottom>
-            Cras mattis consectetur purus sit amet fermentum. Cras justo odio,
-            dapibus ac facilisis in, egestas eget
-            <Link href="https://www.bloomberg.com/technology" target="_blank" style={{ display: 'block', marginBottom: '8px' }}>
+            Insert the headline of the article here.
+            <Link
+              href="https://www.bloomberg.com/technology"
+              target="_blank"
+              style={{ display: 'block', marginBottom: '8px' }}
+            >
               Other News Article/Blog Post
             </Link>
           </Typography>
-          <br/>
-          <br/>
+          <br />
+          <br />
           <Paper>
-            <ImageComponent endpoint="top_jobs_aus" altText="Top 10 AUS Jobs" />
+            <ImageComponent endpoint="top_jobs_aus" alt="Top 10 AUS Jobs" />
           </Paper>
-          <br/>
+          <br />
           <Paper>
-            <ImageComponent endpoint="job_types" altText="Job Types" />
+            <ImageComponent endpoint="job_types" alt="Job Types" />
           </Paper>
         </DialogContent>
       </BootstrapDialog>
-    </React.Fragment>
+    </>
   );
 }

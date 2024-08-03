@@ -1,16 +1,14 @@
-import React from "react";
-import { BrowserRouter as Router } from "react-router-dom";
+import React from 'react';
+import { BrowserRouter as Router } from 'react-router-dom';
 
-import PageList from './PageList'
+import PageList from './PageList';
 
-const App = () => {
+function App() {
   return (
-    <>
-      <Router>
-        <PageList />
-      </Router>
-    </>
+    <Router>
+      <PageList />
+    </Router>
   );
-};
+}
 
 export default App;

@@ -6,7 +6,7 @@ const Profile = (props) => {
   const navigate = useNavigate();
   const handleButtonClick = () => {
     // navigate('/CareerPaths');
-    alert("Edit in progress")
+    alert('Edit in progress');
   };
 
   return (
@@ -18,7 +18,11 @@ const Profile = (props) => {
         Java C C++ Python React SQL <br />
       </Typography>
       <br />
-      <Button style={{backgroundColor: '#470da3'}} variant="contained" onClick={handleButtonClick}>
+      <Button
+        style={{ backgroundColor: '#470da3' }}
+        variant="contained"
+        onClick={handleButtonClick}
+      >
         Edit Skills
       </Button>
     </Paper>

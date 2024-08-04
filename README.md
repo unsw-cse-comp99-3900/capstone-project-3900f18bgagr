@@ -1,4 +1,4 @@
-# Instructions to Run the Program
+# Instructions to Run the Program using Docker
 
 1. Clone the repository to your local machine.
 2. Download the dataset from [Kaggle](https://www.kaggle.com/datasets/asaniczka/1-3m-linkedin-jobs-and-skills-2024#:~:text=job_skills.csv(672.72%20MB)) and save the `job_skills.csv` and `linkedin_job_postings.csv` file to the `backend/App` of the cloned repository.
